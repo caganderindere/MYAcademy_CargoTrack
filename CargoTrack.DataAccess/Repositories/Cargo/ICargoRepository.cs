@@ -9,5 +9,9 @@ namespace CargoTrack.DataAccess.Repositories.Cargo
     {
         Task<Cargo?> GetByTrackCodeAsync(string trackCode);
         Task AddMovementAsync(CargoMovement movement);
+        Task AddDeliveryAsync(Delivery delivery, CargoMovement movement);
+
+        Task AddDeliveryExceptionAsync(DeliveryException deliveryException, List<CargoMovement> movements);
     }
+
 }

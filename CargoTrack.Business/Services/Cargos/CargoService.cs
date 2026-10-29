@@ -6,6 +6,7 @@ using CargoTrack.DTO.DTOs.Cargos;
 using CargoTrack.Entity.Entities;
 using CargoTrack.Entity.Entities.Enums;
 using Mapster;
+using System.Security.Cryptography;
 
 namespace CargoTrack.Business.Services.Cargos
 {
@@ -20,6 +21,7 @@ namespace CargoTrack.Business.Services.Cargos
 
 			cargo.Desi = desi;
 			cargo.Price = price;
+			cargo.EstimatedDeliveryDate = DeliveryDateRules.CalculateEstimatedDeliveryDate(DateTime.Now, cargo.DeliveryType, cargo.AdditionalServices);
 			cargo.TrackCode = await GenerateTrackCodeAsync();
 			cargo.CargoStatus = CargoStatus.Created;
 
@@ -57,7 +59,18 @@ namespace CargoTrack.Business.Services.Cargos
 				throw new BusinessException($"Kargo '{oldStatus}' durumundan '{newStatus}' durumuna geçemez.");
 			}
 
+			if (newStatus == CargoStatus.Delivered)
+			{
+				throw new BusinessException("Teslim iþlemi, teslimat kodu doðrulanarak yapýlmalýdýr.");
+			}
+
 			cargo.CargoStatus = newStatus;
+
+			if (newStatus == CargoStatus.OutForDelivery)
+			{
+				cargo.DeliveryCode = GenerateDeliveryCode();
+				cargo.DeliveryCodeGeneratedDate = DateTime.Now;
+			}
 
 			var movement = new CargoMovement
 			{
@@ -74,6 +87,54 @@ namespace CargoTrack.Business.Services.Cargos
 			await _cargoRepository.AddMovementAsync(movement);
 		}
 
+		public async Task DeliverAsync(DeliverCargoDto deliverCargoDto)
+		{
+			var cargo = await _cargoRepository.GetByIdAsync(deliverCargoDto.CargoId);
+
+			if (cargo is null)
+			{
+				throw new BusinessException("Kargo bulunamadý.");
+			}
+
+			if (cargo.CargoStatus != CargoStatus.OutForDelivery)
+			{
+				throw new BusinessException("Sadece daðýtýmdaki kargolar teslim edilebilir.");
+			}
+
+			if (cargo.DeliveryCode != deliverCargoDto.DeliveryCode)
+			{
+				throw new BusinessException("Teslimat kodu hatalý.");
+			}
+
+			var now = DateTime.Now;
+
+			cargo.CargoStatus = CargoStatus.Delivered;
+			cargo.DeliveredDate = now;
+			cargo.DeliveryCode = null;
+
+			var delivery = new Delivery
+			{
+				CargoId = cargo.Id,
+				EmployeeId = deliverCargoDto.EmployeeId,
+				ReceivedByName = deliverCargoDto.ReceivedByName,
+				DeliveredDate = now,
+				Note = deliverCargoDto.Note
+			};
+
+			var movement = new CargoMovement
+			{
+				CargoId = cargo.Id,
+				FromStatus = CargoStatus.OutForDelivery,
+				ToStatus = CargoStatus.Delivered,
+				MovementDate = now,
+				Description = $"Teslim edildi. Teslim alan: {deliverCargoDto.ReceivedByName}",
+				BranchId = cargo.DestinationBranchId,
+				EmployeeId = deliverCargoDto.EmployeeId
+			};
+
+			await _cargoRepository.AddDeliveryAsync(delivery, movement);
+		}
+
 		private async Task<string> GenerateTrackCodeAsync()
 		{
 			string trackCode;
@@ -85,6 +146,11 @@ namespace CargoTrack.Business.Services.Cargos
 			while (await _cargoRepository.GetByTrackCodeAsync(trackCode) is not null);
 
 			return trackCode;
+		}
+
+		private static string GenerateDeliveryCode()
+		{
+			return RandomNumberGenerator.GetInt32(0, 1000000).ToString("D6");
 		}
 	}
 }
