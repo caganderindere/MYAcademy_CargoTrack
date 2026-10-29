@@ -1,5 +1,4 @@
 ﻿using CargoTrack.DTO.DTOs.Cargos;
-using CargoTrack.Entity.Entities;
 
 namespace CargoTrack.Business.Services.Cargos
 {
@@ -7,7 +6,7 @@ namespace CargoTrack.Business.Services.Cargos
     {
         Task<string> CreateAsync(CreateCargoDto createCargoDto);
         Task ChangeStatusAsync(ChangeCargoStatusDto changeCargoStatusDto);
-
-        Task AddDeliveryAsync(Delivery delivery, CargoMovement movement);
+        Task DeliverAsync(DeliverCargoDto deliverCargoDto);
+        Task ReportFailedDeliveryAsync(FailedDeliveryDto failedDeliveryDto);
     }
 }

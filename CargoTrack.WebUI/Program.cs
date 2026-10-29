@@ -15,6 +15,9 @@ using CargoTrack.DataAccess.Repositories.Cargo;
 using CargoTrack.Business.Services.Cargos;
 using CargoTrack.DataAccess.Repositories.CargoPrices;
 using CargoTrack.Business.Services.CargoPricing;
+using CargoTrack.DataAccess.Repositories.TransferCenters;
+using CargoTrack.Business.Services.TransferCenters;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +42,10 @@ builder.Services.AddScoped<ICargoService, CargoService>();
 builder.Services.AddScoped<ICargoPriceRepository, CargoPriceRepository>();
 
 builder.Services.AddScoped<ICargoPricingService, CargoPricingService>();
+
+builder.Services.AddScoped<ITransferCenterService, TransferCenterService>();
+
+builder.Services.AddScoped<ITransferCenterRepository, TransferCenterRepository>();
 
 builder.Services.AddScoped<IAboutService, AboutService>();
 builder.Services.AddScoped<IBranchService, BranchService>();

@@ -26,10 +26,18 @@ namespace CargoTrack.DataAccess.Repositories.Cargo
             await _context.CargoMovements.AddAsync(movement);
             await _context.SaveChangesAsync();
         }
+
         public async Task AddDeliveryAsync(Delivery delivery, CargoMovement movement)
         {
             await _context.Deliveries.AddAsync(delivery);
             await _context.CargoMovements.AddAsync(movement);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task AddDeliveryExceptionAsync(DeliveryException deliveryException, List<CargoMovement> movements)
+        {
+            await _context.DeliveryExceptions.AddAsync(deliveryException);
+            await _context.CargoMovements.AddRangeAsync(movements);
             await _context.SaveChangesAsync();
         }
     }
