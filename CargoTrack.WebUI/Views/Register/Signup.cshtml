@@ -33,6 +33,13 @@
         </div>
         <div class="row col-12">
             <div class="form-group">
+                <label>Telefon</label>
+                <input type="text" asp-for="PhoneNumber" class="form-control" placeholder="05XXXXXXXXX" />
+                <span class="text-danger" asp-validation-for="PhoneNumber"></span>
+            </div>
+        </div>
+        <div class="row col-12">
+            <div class="form-group">
                 <label>Kullanıcı Adı</label>
                 <input type="text" asp-for="UserName" class="form-control" />
                 <span class="text-danger" asp-validation-for="UserName"></span>

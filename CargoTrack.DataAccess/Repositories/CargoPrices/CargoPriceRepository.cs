@@ -24,5 +24,15 @@ namespace CargoTrack.DataAccess.Repositories.CargoPrices
                          && desi <= x.MaxDesi)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<bool> HasOverlappingRangeAsync(DistanceZone distanceZone, decimal minDesi, decimal maxDesi, Guid? excludeCargoPriceId = null)
+        {
+            return await _context.CargoPrices.AnyAsync(x =>
+                x.IsActive &&
+                x.DistanceZone == distanceZone &&
+                x.Id != excludeCargoPriceId &&
+                minDesi < x.MaxDesi &&
+                x.MinDesi < maxDesi);
+        }
     }
 }

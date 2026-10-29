@@ -16,6 +16,25 @@
     <select asp-for="CityId" class="form-control" asp-items="@ViewBag.cities">
         <option disabled selected>---Şehri Seçiniz---</option>
     </select>
+    <span class="text-danger" asp-validation-for="CityId"></span>
+    <br />
+    <label>Bağlı Transfer Merkezi</label>
+    <select asp-for="TransferCenterId" class="form-control" asp-items="@ViewBag.transferCenters">
+        <option value="">---Seçilmedi---</option>
+    </select>
+    <br />
+    <label>Telefon</label>
+    <input type="text" asp-for="PhoneNumber" class="form-control" />
+    <span class="text-danger" asp-validation-for="PhoneNumber"></span>
+    <br />
+    <label>Adres</label>
+    <textarea asp-for="Address" class="form-control" rows="3"></textarea>
+    <span class="text-danger" asp-validation-for="Address"></span>
+    <br />
+    <div class="form-check">
+        <input type="checkbox" asp-for="IsActive" class="form-check-input" />
+        <label asp-for="IsActive" class="form-check-label">Şube aktif</label>
+    </div>
     <br />
     <button class="btn btn-dark">Güncelle</button>
 

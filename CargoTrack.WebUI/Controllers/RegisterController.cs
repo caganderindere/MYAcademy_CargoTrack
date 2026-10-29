@@ -1,13 +1,11 @@
-﻿using CargoTrack.DTO.DTOs.UserDtos;
-using CargoTrack.Entity.Entities;
-using CargoTrack.WebUI.Consts;
-using Mapster;
-using Microsoft.AspNetCore.Identity;
+﻿using CargoTrack.Business.Exceptions;
+using CargoTrack.Business.Services.Auth;
+using CargoTrack.DTO.DTOs.UserDtos;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CargoTrack.WebUI.Controllers
 {
-    public class RegisterController(UserManager<AppUser> _userManager) : Controller
+    public class RegisterController(IAuthService _authService) : Controller
     {
         public IActionResult Signup()
         {
@@ -22,28 +20,17 @@ namespace CargoTrack.WebUI.Controllers
                 return View(registerUserDto);
             }
 
-            var user = registerUserDto.Adapt<AppUser>();
-
-            var result = await _userManager.CreateAsync(user, registerUserDto.Password);
-
-            //Fast Fail
-
-            if (!result.Succeeded)
+            try
             {
-                foreach(var error in result.Errors)
-                {
-                    ModelState.AddModelError(error.Code, error.Description);
-                }
-
-                return View(registerUserDto);
-
+                await _authService.RegisterAsync(registerUserDto);
             }
-
-            await _userManager.AddToRoleAsync(user, Roles.User);
-
+            catch (BusinessException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(registerUserDto);
+            }
 
             return RedirectToAction("Index", "Login");
         }
-
     }
 }

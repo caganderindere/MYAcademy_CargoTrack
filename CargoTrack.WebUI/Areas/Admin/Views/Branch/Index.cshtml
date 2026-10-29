@@ -16,6 +16,9 @@
         <th>#</th>
         <th>Şube İsmi</th>
         <th>Şehir</th>
+        <th>Transfer Merkezi</th>
+        <th>Telefon</th>
+        <th>Durum</th>
         <th>İşlemler</th>
     </tr>
 
@@ -25,7 +28,19 @@
         <tr>
             <th>@count</th>
             <td>@item.Name</td>
-            <td>@item.City.Name</td>
+            <td>@item.CityName</td>
+            <td>@(item.TransferCenterName ?? "-")</td>
+            <td>@(item.PhoneNumber ?? "-")</td>
+            <td>
+                @if (item.IsActive)
+                {
+                    <span class="badge bg-success">Aktif</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">Pasif</span>
+                }
+            </td>
             <td>
                 <a href="/Admin/Branch/Delete/@item.Id" onclick="return confirm('Silmek istediğinize emin misiniz?')" class="btn btn-danger">Sil</a>
                 <a href="/Admin/Branch/Update/@item.Id" class="btn btn-info">Güncelle</a>

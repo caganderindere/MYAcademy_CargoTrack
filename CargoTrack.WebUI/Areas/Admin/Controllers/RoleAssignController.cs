@@ -32,8 +32,7 @@ namespace CargoTrack.WebUI.Areas.Admin.Controllers
         public async Task<IActionResult> AssignRole(Guid id)
         {
 
-
-            var user = await _userManager.FindByIdAsync(id.ToString());
+var user = await _userManager.FindByIdAsync(id.ToString());
             var roles = await _roleManager.Roles.ToListAsync();
             var userRoles = await _userManager.GetRolesAsync(user);
 
@@ -41,8 +40,7 @@ namespace CargoTrack.WebUI.Areas.Admin.Controllers
 
             ViewBag.fullName = string.Join(" ", user.FirstName, user.LastName);
 
-
-            foreach (var role in roles)
+foreach (var role in roles)
             {
                 roleAssignList.Add(new RoleAssignDto
                 {
@@ -55,12 +53,9 @@ namespace CargoTrack.WebUI.Areas.Admin.Controllers
 
             return View(roleAssignList);
 
+}
 
-
-        }
-
-
-        [HttpPost]
+[HttpPost]
         public async Task<IActionResult> AssignRole(List<RoleAssignDto> model)
         {
             var userId = model.Select(x => x.UserId).FirstOrDefault();
@@ -80,10 +75,8 @@ namespace CargoTrack.WebUI.Areas.Admin.Controllers
 
             }
 
-
-            return RedirectToAction(nameof(Index));
+return RedirectToAction(nameof(Index));
         }
 
-
-    }
+}
 }

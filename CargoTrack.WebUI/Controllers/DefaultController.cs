@@ -28,7 +28,6 @@ namespace CargoTrack.WebUI.Controllers
             return View(cargo);
 
         }
-        
 
-    }
+}
 }

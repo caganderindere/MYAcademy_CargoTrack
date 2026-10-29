@@ -10,6 +10,5 @@ namespace CargoTrack.DataAccess.Repositories.GenericRepositories
         Task UpdateAsync(TEntity entity);
         Task DeleteAsync(TEntity entity);
 
-
-    }
+}
 }

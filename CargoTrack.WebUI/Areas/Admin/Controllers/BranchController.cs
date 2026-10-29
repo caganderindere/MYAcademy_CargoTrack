@@ -1,5 +1,6 @@
 ﻿using CargoTrack.Business.Services.Branches;
 using CargoTrack.Business.Services.Cities;
+using CargoTrack.Business.Services.TransferCenters;
 using CargoTrack.DTO.DTOs.BranchDtos;
 using CargoTrack.WebUI.Consts;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +13,8 @@ namespace CargoTrack.WebUI.Areas.Admin.Controllers
     [Area(Area.Admin)]
     [Authorize(Roles = Roles.Admin)]
     public class BranchController(IBranchService _branchService,
-                                  ICityService _cityService) : Controller
+                                  ICityService _cityService,
+                                  ITransferCenterService _transferCenterService) : Controller
     {
 
         private async Task GetCitiesAsync()
@@ -29,9 +31,25 @@ namespace CargoTrack.WebUI.Areas.Admin.Controllers
                               }).ToList();
         }
 
+        private async Task GetTransferCentersAsync()
+        {
+            var transferCenters = await _transferCenterService.GetAllAsync();
 
+            ViewBag.transferCenters = (from transferCenter in transferCenters.OrderBy(x => x.Name)
+                                       select new SelectListItem
+                                       {
+                                           Text = transferCenter.Name,
+                                           Value = transferCenter.Id.ToString()
+                                       }).ToList();
+        }
 
-        public async Task<IActionResult> Index()
+        private async Task GetSelectListsAsync()
+        {
+            await GetCitiesAsync();
+            await GetTransferCentersAsync();
+        }
+
+public async Task<IActionResult> Index()
         {
             var branches = await _branchService.GetAllAsync();
             return View(branches);
@@ -39,7 +57,7 @@ namespace CargoTrack.WebUI.Areas.Admin.Controllers
 
         public async Task<IActionResult> Create()
         {
-            await GetCitiesAsync();
+            await GetSelectListsAsync();
             return View();
         }
 
@@ -48,7 +66,7 @@ namespace CargoTrack.WebUI.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await GetCitiesAsync();
+                await GetSelectListsAsync();
                 return View(branchDto);
             }
 
@@ -58,7 +76,7 @@ namespace CargoTrack.WebUI.Areas.Admin.Controllers
 
         public async Task<IActionResult> Update(Guid id)
         {
-            await GetCitiesAsync();
+            await GetSelectListsAsync();
             var branch = await _branchService.GetByIdAsync(id);
             return View(branch);
         }
@@ -68,7 +86,7 @@ namespace CargoTrack.WebUI.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await GetCitiesAsync();
+                await GetSelectListsAsync();
                 return View(branchDto);
             }
 
@@ -83,7 +101,5 @@ namespace CargoTrack.WebUI.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
-
-    }
+}
 }

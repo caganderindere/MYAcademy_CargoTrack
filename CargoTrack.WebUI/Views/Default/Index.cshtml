@@ -4,12 +4,10 @@
     Layout = "~/Views/UILayout/Index.cshtml";
 }
 
-<!-- Header Section -->
 <div class="text-center mb-stack-lg">
     <h1 class="font-headline-xl text-headline-xl text-on-background mb-4">Kargo Takip</h1>
     <p class="font-body-lg text-body-lg text-on-surface-variant">Takip numaranızı girerek gönderinizin güncel durumunu görüntüleyebilirsiniz.</p>
 </div>
-<!-- Search Card -->
 <div class="bg-white rounded-lg shadow-sm border border-outline-variant p-6 md:p-8 max-w-3xl mx-auto mb-section-padding relative overflow-hidden">
     <div class="absolute -right-16 -top-16 opacity-5 pointer-events-none">
         <span class="material-symbols-outlined text-[200px] text-primary">local_shipping</span>
@@ -35,13 +33,10 @@
 
 
 </div>
-<!-- Recent Tracking & Help Section Grid -->
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
-    <!-- Left Column: Recent Shipments -->
     <div class="lg:col-span-8">
         <h3 class="font-headline-md text-headline-md text-on-background mb-stack-md">Son Sorgulanan Gönderiler</h3>
         <div class="flex flex-col gap-4">
-            <!-- Item 1: In Transit -->
             <div class="bg-white rounded-lg border border-outline-variant p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:shadow-sm transition-shadow group cursor-pointer border-l-4 border-l-surface-tint">
                 <div>
                     <div class="flex items-center gap-3 mb-2">
@@ -65,7 +60,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Item 2: Transfer -->
             <div class="bg-white rounded-lg border border-outline-variant p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:shadow-sm transition-shadow group cursor-pointer border-l-4 border-l-secondary-container">
                 <div>
                     <div class="flex items-center gap-3 mb-2">
@@ -89,7 +83,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Item 3: Delivered -->
             <div class="bg-white rounded-lg border border-outline-variant p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:shadow-sm transition-shadow group cursor-pointer border-l-4 border-l-[#4caf50]">
                 <div>
                     <div class="flex items-center gap-3 mb-2">
@@ -115,10 +108,8 @@
             </div>
         </div>
     </div>
-    <!-- Right Column: Help Card -->
     <div class="lg:col-span-4 mt-stack-lg lg:mt-0 lg:pt-14">
         <div class="bg-surface-container-low rounded-xl p-6 relative overflow-hidden h-full flex flex-col border border-surface-container shadow-sm">
-            <!-- Decorative large icon -->
             <div class="absolute -right-4 -top-4 opacity-10 pointer-events-none">
                 <span class="material-symbols-outlined text-[120px]">help</span>
             </div>

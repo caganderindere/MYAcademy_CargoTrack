@@ -10,9 +10,7 @@ namespace CargoTrack.Entity.Entities
         public Guid CityId { get; set; }
         public Guid CustomerId { get; set; }
 
-
-        //Navigation Properties
-        public virtual City City { get; set; }
+public virtual City City { get; set; }
         public virtual Customer Customer { get; set; }
         public virtual IList<Cargo> Cargos { get; set; }
     }

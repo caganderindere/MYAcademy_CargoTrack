@@ -9,9 +9,7 @@ namespace CargoTrack.Entity.Entities
 
         public Region Region { get; set; }
 
-
-        //Navigation Properties
-        public virtual IList<Branch> Branches { get; set; }
+public virtual IList<Branch> Branches { get; set; }
         public virtual IList<TransferCenter> TransferCenters { get; set; }
         public virtual IList<Address> Addresses { get; set; }
     }

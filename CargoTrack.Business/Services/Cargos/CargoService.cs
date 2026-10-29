@@ -1,4 +1,5 @@
-using CargoTrack.Business.Exceptions;
+ï»¿using CargoTrack.Business.Exceptions;
+using CargoTrack.Business.Services.CurrentUser;
 using CargoTrack.Business.Rules;
 using CargoTrack.Business.Services.CargoPricing;
 using CargoTrack.DataAccess.Repositories.Cargo;
@@ -11,12 +12,41 @@ using System.Security.Cryptography;
 namespace CargoTrack.Business.Services.Cargos
 {
 	public class CargoService(ICargoRepository _cargoRepository,
-							  ICargoPricingService _cargoPricingService) : ICargoService
+							  ICargoPricingService _cargoPricingService,
+						  IUserContextService _userContextService) : ICargoService
 	{
 		private const int MaxFailedDeliveryAttempts = 3;
+		private const string UnauthorizedMessage = "Bu iÅŸlem iÃ§in yetkiniz yok.";
+
+		public async Task<List<ResultCargoDto>> GetListAsync()
+		{
+			List<Cargo> cargos;
+
+			if (_userContextService.IsAdmin)
+			{
+				cargos = (await _cargoRepository.GetAllAsync()).OrderByDescending(x => x.CreatedDate).ToList();
+			}
+			else if (_userContextService.IsManager)
+			{
+				var employee = await _userContextService.GetCurrentEmployeeAsync();
+
+				cargos = employee.BranchId is not null
+					? await _cargoRepository.GetByBranchIdAsync(employee.BranchId.Value)
+					: await _cargoRepository.GetByTransferCenterIdAsync(employee.TransferCenterId!.Value);
+			}
+			else
+			{
+				var customer = await _userContextService.GetCurrentCustomerAsync();
+				cargos = await _cargoRepository.GetByCustomerIdAsync(customer.Id);
+			}
+
+			return cargos.Adapt<List<ResultCargoDto>>();
+		}
 
 		public async Task<string> CreateAsync(CreateCargoDto createCargoDto)
 		{
+			await EnsureCanCreateAsync(createCargoDto.OriginBranchId);
+
 			var (desi, price) = await _cargoPricingService.CalculateAsync(createCargoDto);
 
 			var cargo = createCargoDto.Adapt<Cargo>();
@@ -35,7 +65,7 @@ namespace CargoTrack.Business.Services.Cargos
 					ToStatus = CargoStatus.Created,
 					MovementDate = DateTime.Now,
 					BranchId = cargo.OriginBranchId,
-					Description = "Gönderi oluþturuldu."
+					Description = "GÃ¶nderi oluÅŸturuldu."
 				}
 			};
 
@@ -46,24 +76,20 @@ namespace CargoTrack.Business.Services.Cargos
 
 		public async Task ChangeStatusAsync(ChangeCargoStatusDto changeCargoStatusDto)
 		{
-			var cargo = await _cargoRepository.GetByIdAsync(changeCargoStatusDto.CargoId);
-
-			if (cargo is null)
-			{
-				throw new BusinessException("Kargo bulunamadý.");
-			}
+			var cargo = await GetManageableCargoAsync(changeCargoStatusDto.CargoId);
+			var employeeId = await GetCurrentEmployeeIdAsync() ?? changeCargoStatusDto.EmployeeId;
 
 			var oldStatus = cargo.CargoStatus;
 			var newStatus = changeCargoStatusDto.NewStatus;
 
 			if (!CargoStatusRules.CanTransition(oldStatus, newStatus))
 			{
-				throw new BusinessException($"Kargo '{oldStatus}' durumundan '{newStatus}' durumuna geçemez.");
+				throw new BusinessException($"Kargo '{oldStatus}' durumundan '{newStatus}' durumuna geÃ§emez.");
 			}
 
 			if (newStatus == CargoStatus.Delivered)
 			{
-				throw new BusinessException("Teslim iþlemi, teslimat kodu doðrulanarak yapýlmalýdýr.");
+				throw new BusinessException("Teslim iÅŸlemi, teslimat kodu doÄŸrulanarak yapÄ±lmalÄ±dÄ±r.");
 			}
 
 			if (newStatus == CargoStatus.DeliveryFailed)
@@ -88,7 +114,7 @@ namespace CargoTrack.Business.Services.Cargos
 				Description = changeCargoStatusDto.Description,
 				BranchId = changeCargoStatusDto.BranchId,
 				TransferCenterId = changeCargoStatusDto.TransferCenterId,
-				EmployeeId = changeCargoStatusDto.EmployeeId
+				EmployeeId = employeeId
 			};
 
 			await _cargoRepository.AddMovementAsync(movement);
@@ -96,21 +122,17 @@ namespace CargoTrack.Business.Services.Cargos
 
 		public async Task DeliverAsync(DeliverCargoDto deliverCargoDto)
 		{
-			var cargo = await _cargoRepository.GetByIdAsync(deliverCargoDto.CargoId);
-
-			if (cargo is null)
-			{
-				throw new BusinessException("Kargo bulunamadý.");
-			}
+			var cargo = await GetManageableCargoAsync(deliverCargoDto.CargoId);
+			var employeeId = await GetCurrentEmployeeIdAsync() ?? deliverCargoDto.EmployeeId;
 
 			if (cargo.CargoStatus != CargoStatus.OutForDelivery)
 			{
-				throw new BusinessException("Sadece daðýtýmdaki kargolar teslim edilebilir.");
+				throw new BusinessException("Sadece daÄŸÄ±tÄ±mdaki kargolar teslim edilebilir.");
 			}
 
 			if (cargo.DeliveryCode != deliverCargoDto.DeliveryCode)
 			{
-				throw new BusinessException("Teslimat kodu hatalý.");
+				throw new BusinessException("Teslimat kodu hatalÄ±.");
 			}
 
 			var now = DateTime.Now;
@@ -122,7 +144,7 @@ namespace CargoTrack.Business.Services.Cargos
 			var delivery = new Delivery
 			{
 				CargoId = cargo.Id,
-				EmployeeId = deliverCargoDto.EmployeeId,
+				EmployeeId = employeeId,
 				ReceivedByName = deliverCargoDto.ReceivedByName,
 				DeliveredDate = now,
 				Note = deliverCargoDto.Note
@@ -136,7 +158,7 @@ namespace CargoTrack.Business.Services.Cargos
 				MovementDate = now,
 				Description = $"Teslim edildi. Teslim alan: {deliverCargoDto.ReceivedByName}",
 				BranchId = cargo.DestinationBranchId,
-				EmployeeId = deliverCargoDto.EmployeeId
+				EmployeeId = employeeId
 			};
 
 			await _cargoRepository.AddDeliveryAsync(delivery, movement);
@@ -144,16 +166,12 @@ namespace CargoTrack.Business.Services.Cargos
 
 		public async Task ReportFailedDeliveryAsync(FailedDeliveryDto failedDeliveryDto)
 		{
-			var cargo = await _cargoRepository.GetByIdAsync(failedDeliveryDto.CargoId);
-
-			if (cargo is null)
-			{
-				throw new BusinessException("Kargo bulunamadý.");
-			}
+			var cargo = await GetManageableCargoAsync(failedDeliveryDto.CargoId);
+			var employeeId = await GetCurrentEmployeeIdAsync() ?? failedDeliveryDto.EmployeeId;
 
 			if (cargo.CargoStatus != CargoStatus.OutForDelivery)
 			{
-				throw new BusinessException("Sadece daðýtýmdaki kargolar için teslimat sorunu bildirilebilir.");
+				throw new BusinessException("Sadece daÄŸÄ±tÄ±mdaki kargolar iÃ§in teslimat sorunu bildirilebilir.");
 			}
 
 			var now = DateTime.Now;
@@ -165,7 +183,7 @@ namespace CargoTrack.Business.Services.Cargos
 			var deliveryException = new DeliveryException
 			{
 				CargoId = cargo.Id,
-				EmployeeId = failedDeliveryDto.EmployeeId,
+				EmployeeId = employeeId,
 				Reason = failedDeliveryDto.Reason,
 				Description = failedDeliveryDto.Description,
 				AttemptNumber = cargo.FailedDeliveryAttempts,
@@ -182,7 +200,7 @@ namespace CargoTrack.Business.Services.Cargos
 					MovementDate = now,
 					Description = $"Teslim edilemedi ({cargo.FailedDeliveryAttempts}. deneme).",
 					BranchId = cargo.DestinationBranchId,
-					EmployeeId = failedDeliveryDto.EmployeeId
+					EmployeeId = employeeId
 				}
 			};
 
@@ -196,12 +214,76 @@ namespace CargoTrack.Business.Services.Cargos
 					FromStatus = CargoStatus.DeliveryFailed,
 					ToStatus = CargoStatus.ReturnInProgress,
 					MovementDate = now.AddSeconds(1),
-					Description = $"{MaxFailedDeliveryAttempts} baþarýsýz teslimat denemesi sonrasý iade süreci baþlatýldý.",
+					Description = $"{MaxFailedDeliveryAttempts} baÅŸarÄ±sÄ±z teslimat denemesi sonrasÄ± iade sÃ¼reci baÅŸlatÄ±ldÄ±.",
 					BranchId = cargo.DestinationBranchId
 				});
 			}
 
 			await _cargoRepository.AddDeliveryExceptionAsync(deliveryException, movements);
+		}
+
+		private async Task EnsureCanCreateAsync(Guid originBranchId)
+		{
+			if (_userContextService.IsAdmin)
+			{
+				return;
+			}
+
+			if (!_userContextService.IsManager)
+			{
+				throw new BusinessException(UnauthorizedMessage);
+			}
+
+			var employee = await _userContextService.GetCurrentEmployeeAsync();
+
+			if (employee.BranchId != originBranchId)
+			{
+				throw new BusinessException("Sadece kendi ÅŸubenizden kargo gÃ¶nderisi oluÅŸturabilirsiniz.");
+			}
+		}
+
+		private async Task<Cargo> GetManageableCargoAsync(Guid cargoId)
+		{
+			var cargo = await _cargoRepository.GetByIdAsync(cargoId);
+
+			if (cargo is null)
+			{
+				throw new BusinessException("Kargo bulunamadÄ±.");
+			}
+
+			if (_userContextService.IsAdmin)
+			{
+				return cargo;
+			}
+
+			if (!_userContextService.IsManager)
+			{
+				throw new BusinessException(UnauthorizedMessage);
+			}
+
+			var employee = await _userContextService.GetCurrentEmployeeAsync();
+
+			var canManage = employee.BranchId is not null
+				? cargo.OriginBranchId == employee.BranchId || cargo.DestinationBranchId == employee.BranchId
+				: cargo.OriginBranch.TransferCenterId == employee.TransferCenterId || cargo.DestinationBranch.TransferCenterId == employee.TransferCenterId;
+
+			if (!canManage)
+			{
+				throw new BusinessException("Bu kargo sizin biriminizle ilgili deÄŸil. Ä°ÅŸlem yapamazsÄ±nÄ±z.");
+			}
+
+			return cargo;
+		}
+
+		private async Task<Guid?> GetCurrentEmployeeIdAsync()
+		{
+			if (!_userContextService.IsManager)
+			{
+				return null;
+			}
+
+			var employee = await _userContextService.GetCurrentEmployeeAsync();
+			return employee.Id;
 		}
 
 		private async Task<string> GenerateTrackCodeAsync()

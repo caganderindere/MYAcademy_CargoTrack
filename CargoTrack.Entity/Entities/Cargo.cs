@@ -33,10 +33,7 @@ public class Cargo: BaseEntity
     public Guid OriginBranchId { get; set; }
     public Guid DestinationBranchId { get; set; }
 
-
-
-    //Navigation Properties
-    public virtual Customer Sender { get; set; }
+public virtual Customer Sender { get; set; }
     public virtual Customer Receiver { get; set; }
     public virtual Address DeliveryAddress { get; set; }
     public virtual Branch OriginBranch { get; set; }

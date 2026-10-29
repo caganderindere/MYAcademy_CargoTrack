@@ -57,7 +57,5 @@ namespace CargoTrack.WebUI.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
-
-    }
+}
 }

@@ -21,6 +21,31 @@ namespace CargoTrack.DataAccess.Repositories.Cargo
             return await _context.Cargos.FirstOrDefaultAsync(x => x.TrackCode == trackCode);
         }
 
+        public async Task<List<Cargo>> GetByBranchIdAsync(Guid branchId)
+        {
+            return await _context.Cargos
+                .Where(x => x.OriginBranchId == branchId || x.DestinationBranchId == branchId)
+                .OrderByDescending(x => x.CreatedDate)
+                .ToListAsync();
+        }
+
+        public async Task<List<Cargo>> GetByTransferCenterIdAsync(Guid transferCenterId)
+        {
+            return await _context.Cargos
+                .Where(x => x.OriginBranch.TransferCenterId == transferCenterId
+                         || x.DestinationBranch.TransferCenterId == transferCenterId)
+                .OrderByDescending(x => x.CreatedDate)
+                .ToListAsync();
+        }
+
+        public async Task<List<Cargo>> GetByCustomerIdAsync(Guid customerId)
+        {
+            return await _context.Cargos
+                .Where(x => x.SenderId == customerId || x.ReceiverId == customerId)
+                .OrderByDescending(x => x.CreatedDate)
+                .ToListAsync();
+        }
+
         public async Task AddMovementAsync(CargoMovement movement)
         {
             await _context.CargoMovements.AddAsync(movement);

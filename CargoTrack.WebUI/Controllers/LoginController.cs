@@ -1,13 +1,12 @@
-﻿using CargoTrack.DTO.DTOs.UserDtos;
-using CargoTrack.Entity.Entities;
+﻿using CargoTrack.Business.Exceptions;
+using CargoTrack.Business.Services.Auth;
+using CargoTrack.DTO.DTOs.UserDtos;
 using CargoTrack.WebUI.Consts;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CargoTrack.WebUI.Controllers
 {
-    public class LoginController(SignInManager<AppUser> _signInManager,
-                                 UserManager<AppUser> _userManager) : Controller
+    public class LoginController(IAuthService _authService) : Controller
     {
         public IActionResult Index()
         {
@@ -17,17 +16,31 @@ namespace CargoTrack.WebUI.Controllers
         [HttpPost]
         public async Task<IActionResult> Index(LoginUserDto loginUserDto)
         {
-            var result = await _signInManager.PasswordSignInAsync(loginUserDto.UserName, loginUserDto.Password, false, false);
-
-            if (!result.Succeeded)
+            if (!ModelState.IsValid)
             {
-                ModelState.AddModelError(string.Empty, "Kullanıcı adı veya şifre hatalı.");
                 return View(loginUserDto);
             }
 
-            var user = await _userManager.FindByNameAsync(loginUserDto.UserName);
-            var userRoles = await _userManager.GetRolesAsync(user);
+            try
+            {
+                var userRoles = await _authService.LoginAsync(loginUserDto);
+                return RedirectByRole(userRoles);
+            }
+            catch (BusinessException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(loginUserDto);
+            }
+        }
 
+        public async Task<IActionResult> Logout()
+        {
+            await _authService.LogoutAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private IActionResult RedirectByRole(IList<string> userRoles)
+        {
             if (userRoles.Contains(Roles.Admin))
             {
                 return Redirect("/Admin/Branch/Index");
@@ -44,10 +57,6 @@ namespace CargoTrack.WebUI.Controllers
             }
 
             return RedirectToAction("Index", "Home");
-
         }
-
-
-
     }
 }
