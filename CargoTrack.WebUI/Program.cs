@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using CargoTrack.DataAccess.Repositories.Cargo;
 using CargoTrack.Business.Services.Cargos;
 using CargoTrack.DataAccess.Repositories.CargoPrices;
+using CargoTrack.Business.Services.CargoPricing;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,8 @@ builder.Services.AddScoped<ICargoRepository, CargoRepository>();
 builder.Services.AddScoped<ICargoService, CargoService>();
 
 builder.Services.AddScoped<ICargoPriceRepository, CargoPriceRepository>();
+
+builder.Services.AddScoped<ICargoPricingService, CargoPricingService>();
 
 builder.Services.AddScoped<IAboutService, AboutService>();
 builder.Services.AddScoped<IBranchService, BranchService>();
@@ -145,8 +148,37 @@ using (var scope = app.Services.CreateScope())
         context.Roles.AddRange(roles);
         context.SaveChanges();
     }
+    // Fiyat tarifesi yoksa ekle (bölge × desi aralığı)
+    if (!context.CargoPrices.Any())
+    {
+        var prices = new List<CargoPrice>
+        {
+            // Şehir İçi
+            new CargoPrice { DistanceZone = DistanceZone.SameCity,    MinDesi = 0,  MaxDesi = 1,  Price = 60  },
+            new CargoPrice { DistanceZone = DistanceZone.SameCity,    MinDesi = 1,  MaxDesi = 5,  Price = 80  },
+            new CargoPrice { DistanceZone = DistanceZone.SameCity,    MinDesi = 5,  MaxDesi = 10, Price = 110 },
+            new CargoPrice { DistanceZone = DistanceZone.SameCity,    MinDesi = 10, MaxDesi = 20, Price = 160 },
+            new CargoPrice { DistanceZone = DistanceZone.SameCity,    MinDesi = 20, MaxDesi = 50, Price = 250 },
 
-   
+            // Bölge İçi
+            new CargoPrice { DistanceZone = DistanceZone.SameRegion,  MinDesi = 0,  MaxDesi = 1,  Price = 75  },
+            new CargoPrice { DistanceZone = DistanceZone.SameRegion,  MinDesi = 1,  MaxDesi = 5,  Price = 100 },
+            new CargoPrice { DistanceZone = DistanceZone.SameRegion,  MinDesi = 5,  MaxDesi = 10, Price = 135 },
+            new CargoPrice { DistanceZone = DistanceZone.SameRegion,  MinDesi = 10, MaxDesi = 20, Price = 195 },
+            new CargoPrice { DistanceZone = DistanceZone.SameRegion,  MinDesi = 20, MaxDesi = 50, Price = 300 },
+
+            // Bölgeler Arası
+            new CargoPrice { DistanceZone = DistanceZone.InterRegion, MinDesi = 0,  MaxDesi = 1,  Price = 90  },
+            new CargoPrice { DistanceZone = DistanceZone.InterRegion, MinDesi = 1,  MaxDesi = 5,  Price = 120 },
+            new CargoPrice { DistanceZone = DistanceZone.InterRegion, MinDesi = 5,  MaxDesi = 10, Price = 150 },
+            new CargoPrice { DistanceZone = DistanceZone.InterRegion, MinDesi = 10, MaxDesi = 20, Price = 230 },
+            new CargoPrice { DistanceZone = DistanceZone.InterRegion, MinDesi = 20, MaxDesi = 50, Price = 360 }
+        };
+
+        context.CargoPrices.AddRange(prices);
+        context.SaveChanges();
+    }
+
 }
 
 

@@ -1,20 +1,25 @@
 using CargoTrack.Business.Exceptions;
 using CargoTrack.Business.Rules;
+using CargoTrack.Business.Services.CargoPricing;
 using CargoTrack.DataAccess.Repositories.Cargo;
 using CargoTrack.DTO.DTOs.Cargos;
 using CargoTrack.Entity.Entities;
 using CargoTrack.Entity.Entities.Enums;
 using Mapster;
 
-
 namespace CargoTrack.Business.Services.Cargos
 {
-	public class CargoService(ICargoRepository _cargoRepository) : ICargoService
+	public class CargoService(ICargoRepository _cargoRepository,
+							  ICargoPricingService _cargoPricingService) : ICargoService
 	{
 		public async Task<string> CreateAsync(CreateCargoDto createCargoDto)
 		{
+			var (desi, price) = await _cargoPricingService.CalculateAsync(createCargoDto);
+
 			var cargo = createCargoDto.Adapt<Cargo>();
 
+			cargo.Desi = desi;
+			cargo.Price = price;
 			cargo.TrackCode = await GenerateTrackCodeAsync();
 			cargo.CargoStatus = CargoStatus.Created;
 
@@ -69,9 +74,7 @@ namespace CargoTrack.Business.Services.Cargos
 			await _cargoRepository.AddMovementAsync(movement);
 		}
 
-
 		private async Task<string> GenerateTrackCodeAsync()
-
 		{
 			string trackCode;
 
