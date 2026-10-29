@@ -7,10 +7,11 @@ using CargoTrack.DataAccess.Repositories.Abouts;
 using CargoTrack.DataAccess.Repositories.Branches;
 using CargoTrack.DataAccess.Repositories.Cities;
 using CargoTrack.Entity.Entities;
-using CargoTrack.Entity.Entities.Enums; // ✏️ Region enum'u için eklendi
+using CargoTrack.Entity.Entities.Enums;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using CargoTrack.DataAccess.Repositories.Cargo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,10 +24,12 @@ builder.Services.AddFluentValidationAutoValidation()
                 .AddValidatorsFromAssembly(typeof(BusinessAssembly).Assembly);
 
 
+
 builder.Services.AddScoped<IAboutRepository, AboutRepository>();
 builder.Services.AddScoped<IBranchRepository, BranchRepository>();
 builder.Services.AddScoped<ICityRepository, CityRepository>();
 
+builder.Services.AddScoped<ICargoRepository, CargoRepository>();
 
 builder.Services.AddScoped<IAboutService, AboutService>();
 builder.Services.AddScoped<IBranchService, BranchService>();

@@ -1,0 +1,30 @@
+﻿using CargoTrack.DataAccess.Context;
+using CargoTrack.DataAccess.Repositories.GenericRepositories;
+using CargoTrack.Entity.Entities;
+using Microsoft.EntityFrameworkCore;
+
+namespace CargoTrack.DataAccess.Repositories.Cargo
+{
+    using Cargo = CargoTrack.Entity.Entities.Cargo;
+
+    public class CargoRepository : GenericRepository<Cargo>, ICargoRepository
+    {
+        private readonly AppDbContext _context;
+
+        public CargoRepository(AppDbContext context) : base(context)
+        {
+            _context = context;
+        }
+
+        public async Task<Cargo?> GetByTrackCodeAsync(string trackCode)
+        {
+            return await _context.Cargos.FirstOrDefaultAsync(x => x.TrackCode == trackCode);
+        }
+
+        public async Task AddMovementAsync(CargoMovement movement)
+        {
+            await _context.CargoMovements.AddAsync(movement);
+            await _context.SaveChangesAsync();
+        }
+    }
+}
