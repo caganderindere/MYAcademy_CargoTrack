@@ -1,8 +1,11 @@
+using CargoTrack.Business.Exceptions;
+using CargoTrack.Business.Rules;
 using CargoTrack.DataAccess.Repositories.Cargo;
 using CargoTrack.DTO.DTOs.Cargos;
 using CargoTrack.Entity.Entities;
 using CargoTrack.Entity.Entities.Enums;
 using Mapster;
+
 
 namespace CargoTrack.Business.Services.Cargos
 {
@@ -32,7 +35,43 @@ namespace CargoTrack.Business.Services.Cargos
 			return cargo.TrackCode;
 		}
 
+		public async Task ChangeStatusAsync(ChangeCargoStatusDto changeCargoStatusDto)
+		{
+			var cargo = await _cargoRepository.GetByIdAsync(changeCargoStatusDto.CargoId);
+
+			if (cargo is null)
+			{
+				throw new BusinessException("Kargo bulunamadý.");
+			}
+
+			var oldStatus = cargo.CargoStatus;
+			var newStatus = changeCargoStatusDto.NewStatus;
+
+			if (!CargoStatusRules.CanTransition(oldStatus, newStatus))
+			{
+				throw new BusinessException($"Kargo '{oldStatus}' durumundan '{newStatus}' durumuna geçemez.");
+			}
+
+			cargo.CargoStatus = newStatus;
+
+			var movement = new CargoMovement
+			{
+				CargoId = cargo.Id,
+				FromStatus = oldStatus,
+				ToStatus = newStatus,
+				MovementDate = DateTime.Now,
+				Description = changeCargoStatusDto.Description,
+				BranchId = changeCargoStatusDto.BranchId,
+				TransferCenterId = changeCargoStatusDto.TransferCenterId,
+				EmployeeId = changeCargoStatusDto.EmployeeId
+			};
+
+			await _cargoRepository.AddMovementAsync(movement);
+		}
+
+
 		private async Task<string> GenerateTrackCodeAsync()
+
 		{
 			string trackCode;
 

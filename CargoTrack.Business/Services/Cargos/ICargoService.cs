@@ -5,5 +5,6 @@ namespace CargoTrack.Business.Services.Cargos
     public interface ICargoService
     {
         Task<string> CreateAsync(CreateCargoDto createCargoDto);
+        Task ChangeStatusAsync(ChangeCargoStatusDto changeCargoStatusDto);
     }
 }
