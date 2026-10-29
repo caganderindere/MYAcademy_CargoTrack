@@ -137,6 +137,7 @@ a:hover { color: var(--ct-primary-600); }
 
 .site-header { position: sticky; top: 0; z-index: 1030; background: rgba(255, 255, 255, .86); backdrop-filter: saturate(180%) blur(14px); border-bottom: 1px solid rgba(228, 233, 242, .8); }
 .site-header .navbar { padding: .85rem 0; }
+.site-header .nav-link, .site-header .btn, .brand { white-space: nowrap; }
 .site-header .nav-link { font-weight: 650; color: var(--ct-text-2); padding: .5rem .9rem !important; border-radius: 10px; }
 .site-header .nav-link:hover, .site-header .nav-link.active { color: var(--ct-ink); background: var(--ct-surface); }
 .topline { background: var(--ct-ink); color: #c9d4e6; font-size: .8rem; padding: .45rem 0; }

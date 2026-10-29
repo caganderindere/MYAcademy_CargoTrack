@@ -51,7 +51,7 @@
         gradient.addColorStop(1, "rgba(242,100,20,0)");
         new Chart(ctx, {
           type: "line",
-          data: { labels: cfg.labels, datasets: [{ label: cfg.label || "", data: cfg.values, borderColor: brand.accent, backgroundColor: gradient, fill: true, tension: .38, borderWidth: 3, pointRadius: 4, pointBackgroundColor: "#fff", pointBorderColor: brand.accent, pointBorderWidth: 2 }] },
+          data: { labels: cfg.labels, datasets: [{ label: cfg.label || "", data: cfg.values, borderColor: brand.accent, backgroundColor: gradient, fill: true, tension: .35, cubicInterpolationMode: "monotone", borderWidth: 3, pointRadius: 4, pointBackgroundColor: "#fff", pointBorderColor: brand.accent, pointBorderWidth: 2 }] },
           options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: "#EEF2F7" } }, x: { grid: { display: false } } } }
         });
       }
@@ -184,6 +184,18 @@
           });
         });
     }
+
+    const destinationSelect = form.querySelector("select[name=DestinationBranchId]");
+    addressSelect.addEventListener("change", function () {
+      const text = addressSelect.options[addressSelect.selectedIndex]?.textContent || "";
+      const city = text.split("/").pop().trim();
+      if (!city || !destinationSelect) { return; }
+      const match = Array.from(destinationSelect.options).find(function (o) { return o.textContent.trim().endsWith("(" + city + ")"); });
+      if (match) {
+        destinationSelect.value = match.value;
+        destinationSelect.dispatchEvent(new Event("change"));
+      }
+    });
 
     const servicesHidden = form.querySelector("[name=AdditionalServices]");
     form.querySelectorAll("[data-service]").forEach(function (cb) {

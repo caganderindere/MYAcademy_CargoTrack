@@ -4,6 +4,7 @@ using CargoTrack.Business.Rules;
 using CargoTrack.Business.Services.CargoPricing;
 using CargoTrack.Business.Services.CurrentUser;
 using CargoTrack.DataAccess.Repositories.Addresses;
+using CargoTrack.DataAccess.Repositories.Branches;
 using CargoTrack.DataAccess.Repositories.Cargo;
 using CargoTrack.DataAccess.Repositories.CargoMovements;
 using CargoTrack.DataAccess.Repositories.Employees;
@@ -20,6 +21,7 @@ namespace CargoTrack.Business.Services.Cargos
     public class CargoService(ICargoRepository _cargoRepository,
                               ICargoMovementRepository _cargoMovementRepository,
                               IAddressRepository _addressRepository,
+                              IBranchRepository _branchRepository,
                               IEmployeeRepository _employeeRepository,
                               ICargoPricingService _cargoPricingService,
                               IUserContextService _userContextService) : ICargoService
@@ -111,6 +113,7 @@ namespace CargoTrack.Business.Services.Cargos
 
             detail.Movements = cargo.Movements
                 .OrderByDescending(x => x.MovementDate)
+                .ThenByDescending(x => x.CreatedDate)
                 .Adapt<List<ResultCargoMovementDto>>();
             detail.DeliveryExceptions = cargo.DeliveryExceptions
                 .OrderByDescending(x => x.OccurredDate)
@@ -157,6 +160,7 @@ namespace CargoTrack.Business.Services.Cargos
 
             var movements = cargo.Movements
                 .OrderByDescending(x => x.MovementDate)
+                .ThenByDescending(x => x.CreatedDate)
                 .Select(x => new PublicMovementDto
                 {
                     ToStatus = x.ToStatus,
@@ -274,6 +278,18 @@ namespace CargoTrack.Business.Services.Cargos
             if (deliveryAddress is null || deliveryAddress.CustomerId != createCargoDto.ReceiverId)
             {
                 throw new BusinessException("Teslimat adresi seçilen alıcıya ait olmalıdır.");
+            }
+
+            var destinationBranch = await _branchRepository.GetByIdAsync(createCargoDto.DestinationBranchId);
+
+            if (destinationBranch is null || !destinationBranch.IsActive)
+            {
+                throw new BusinessException("Varış şubesi bulunamadı veya şu an gönderi kabul etmiyor.");
+            }
+
+            if (destinationBranch.CityId != deliveryAddress.CityId)
+            {
+                throw new BusinessException("Teslimat adresi, varış şubesinin hizmet verdiği şehirde olmalıdır.");
             }
 
             var (desi, price) = await _cargoPricingService.CalculateAsync(createCargoDto);
