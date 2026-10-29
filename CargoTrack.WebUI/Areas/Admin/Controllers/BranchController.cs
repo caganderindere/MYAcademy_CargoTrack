@@ -2,62 +2,29 @@
 using CargoTrack.Business.Services.Cities;
 using CargoTrack.Business.Services.TransferCenters;
 using CargoTrack.DTO.DTOs.BranchDtos;
+using CargoTrack.WebUI.Extensions;
 using CargoTrack.WebUI.Consts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace CargoTrack.WebUI.Areas.Admin.Controllers
 {
-
     [Area(Area.Admin)]
     [Authorize(Roles = Roles.Admin)]
     public class BranchController(IBranchService _branchService,
                                   ICityService _cityService,
                                   ITransferCenterService _transferCenterService) : Controller
     {
-
-        private async Task GetCitiesAsync()
+        public async Task<IActionResult> Index(BranchFilterDto filter)
         {
-            var cities = await _cityService.GetAllAsync();
-
-            var sortedCities = cities.OrderBy(x=>x.Name).ToList();
-
-            ViewBag.cities = (from city in sortedCities
-                              select new SelectListItem
-                              {
-                                  Text = city.Name,
-                                  Value = city.Id.ToString()
-                              }).ToList();
-        }
-
-        private async Task GetTransferCentersAsync()
-        {
-            var transferCenters = await _transferCenterService.GetAllAsync();
-
-            ViewBag.transferCenters = (from transferCenter in transferCenters.OrderBy(x => x.Name)
-                                       select new SelectListItem
-                                       {
-                                           Text = transferCenter.Name,
-                                           Value = transferCenter.Id.ToString()
-                                       }).ToList();
-        }
-
-        private async Task GetSelectListsAsync()
-        {
-            await GetCitiesAsync();
-            await GetTransferCentersAsync();
-        }
-
-public async Task<IActionResult> Index()
-        {
-            var branches = await _branchService.GetAllAsync();
-            return View(branches);
+            await LoadCitiesAsync();
+            ViewBag.Filter = filter;
+            return View(await _branchService.GetPagedAsync(filter));
         }
 
         public async Task<IActionResult> Create()
         {
-            await GetSelectListsAsync();
+            await LoadSelectListsAsync();
             return View();
         }
 
@@ -66,19 +33,19 @@ public async Task<IActionResult> Index()
         {
             if (!ModelState.IsValid)
             {
-                await GetSelectListsAsync();
+                await LoadSelectListsAsync();
                 return View(branchDto);
             }
 
             await _branchService.CreateAsync(branchDto);
+            TempData["Success"] = "Şube başarıyla oluşturuldu.";
             return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Update(Guid id)
         {
-            await GetSelectListsAsync();
-            var branch = await _branchService.GetByIdAsync(id);
-            return View(branch);
+            await LoadSelectListsAsync();
+            return View(await _branchService.GetByIdAsync(id));
         }
 
         [HttpPost]
@@ -86,20 +53,34 @@ public async Task<IActionResult> Index()
         {
             if (!ModelState.IsValid)
             {
-                await GetSelectListsAsync();
+                await LoadSelectListsAsync();
                 return View(branchDto);
             }
 
             await _branchService.UpdateAsync(branchDto);
+            TempData["Success"] = "Şube bilgileri güncellendi.";
             return RedirectToAction(nameof(Index));
-
         }
 
+        [HttpPost]
         public async Task<IActionResult> Delete(Guid id)
         {
             await _branchService.DeleteAsync(id);
+            TempData["Success"] = "Şube silindi.";
             return RedirectToAction(nameof(Index));
         }
 
-}
+        private async Task LoadCitiesAsync()
+        {
+            var cities = await _cityService.GetAllAsync();
+            ViewBag.Cities = cities.ToSelectList(x => x.Id, x => x.Name);
+        }
+
+        private async Task LoadSelectListsAsync()
+        {
+            await LoadCitiesAsync();
+            var transferCenters = await _transferCenterService.GetAllAsync();
+            ViewBag.TransferCenters = transferCenters.Where(x => x.IsActive).ToSelectList(x => x.Id, x => x.Name);
+        }
+    }
 }

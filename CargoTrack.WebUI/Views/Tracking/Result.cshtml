@@ -1,0 +1,109 @@
+﻿@model PublicTrackingDto
+@{
+    ViewData["Title"] = Model.TrackCode + " Takip";
+    var shareUrl = Context.Request.Scheme + "://" + Context.Request.Host + "/Tracking/Result?code=" + Model.TrackCode;
+}
+<section class="page-hero">
+    <div class="container d-flex flex-wrap justify-content-between align-items-end gap-3">
+        <div>
+            <span class="eyebrow" style="color:#FFB283">Gönderi Takibi</span>
+            <h1 class="mt-2 mono">@Model.TrackCode</h1>
+            <p class="mb-0">@Model.CargoType.GetDisplayName() · @Model.DeliveryType.GetDisplayName() teslimat · @Model.CreatedDate.ToShortDateTime() tarihinde oluşturuldu</p>
+        </div>
+        <a class="btn btn-ghost" href="/Tracking"><i class="bi bi-search"></i> Yeni Sorgu</a>
+    </div>
+</section>
+<div class="container pb-5">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card-ct mb-4">
+                <div class="card-body-ct">
+                    <div class="d-flex flex-wrap justify-content-between gap-3 align-items-start mb-4">
+                        <div>
+                            <div class="small text-muted-ct fw-bold text-uppercase">Güncel Durum</div>
+                            <div class="d-flex align-items-center gap-2 mt-1">
+                                <span class="fs-4 fw-bold">@Model.CargoStatus.GetDisplayName()</span>
+                                @if (Model.IsDelayed)
+                                {
+                                    <span class="badge-ct badge-plain tag-delay"><i class="bi bi-alarm"></i> Gecikmede</span>
+                                }
+                            </div>
+                            @if (Model.LastMovement is not null)
+                            {
+                                <div class="small text-2 mt-1"><i class="bi bi-clock me-1"></i>@Model.LastMovement.MovementDate.ToShortDateTime()@(Model.LastMovement.LocationName is not null ? " · " + Model.LastMovement.LocationName : "")</div>
+                            }
+                        </div>
+                        <div class="text-md-end">
+                            <div class="small text-muted-ct fw-bold text-uppercase">@(Model.DeliveredDate is null ? "Tahmini Teslim" : "Teslim Tarihi")</div>
+                            <div class="fs-5 fw-bold mt-1">@((Model.DeliveredDate ?? Model.EstimatedDeliveryDate).ToString("dd MMMM dddd"))</div>
+                            <div class="small text-2">@((Model.DeliveredDate ?? Model.EstimatedDeliveryDate).ToString("HH:mm"))'e kadar</div>
+                        </div>
+                    </div>
+                    <partial name="_StatusStepper" model="Model.CargoStatus" />
+                </div>
+                <div class="card-foot">
+                    <div class="route-line">
+                        <div class="node"><div class="city">@Model.OriginCityName</div><div class="br">@Model.OriginBranchName</div></div>
+                        <div class="path"><i class="bi bi-truck"></i></div>
+                        <div class="node text-md-end"><div class="city">@Model.DestinationCityName</div><div class="br">@Model.DestinationBranchName</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-ct">
+                <div class="card-head"><h3><i class="bi bi-clock-history me-2"></i>Hareket Geçmişi</h3><span class="sub">@Model.Movements.Count kayıt</span></div>
+                <div class="card-body-ct">
+                    <ul class="timeline">
+                        @foreach (var item in Model.Movements)
+                        {
+                            <li>
+                                <span class="ti-dot"><i class="bi @item.ToStatus.Icon()"></i></span>
+                                <div class="ti-title">@item.ToStatus.GetDisplayName()</div>
+                                <div class="ti-meta">
+                                    <span><i class="bi bi-calendar3 me-1"></i>@item.MovementDate.ToShortDateTime()</span>
+                                    @if (item.LocationName is not null)
+                                    {
+                                        <span><i class="bi bi-geo-alt me-1"></i>@item.LocationName</span>
+                                    }
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(item.Description))
+                                {
+                                    <div class="ti-desc">@item.Description</div>
+                                }
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card-ct mb-4">
+                <div class="card-head"><h3>Gönderi Bilgisi</h3><i class="bi bi-shield-lock text-success" title="Kişisel veriler maskelenmiştir"></i></div>
+                <div class="card-body-ct">
+                    <div class="party mb-3"><div class="av ico-blue"><i class="bi bi-person"></i></div><div><div class="small text-muted-ct fw-bold text-uppercase">Gönderici</div><div class="fw-bold mono">@Model.SenderMaskedName</div></div></div>
+                    <div class="party"><div class="av ico-orange"><i class="bi bi-person-check"></i></div><div><div class="small text-muted-ct fw-bold text-uppercase">Alıcı</div><div class="fw-bold mono">@Model.ReceiverMaskedName</div></div></div>
+                    @if (Model.FailedDeliveryAttempts > 0)
+                    {
+                        <div class="alert-ct warning mt-3 mb-0"><i class="bi bi-exclamation-triangle"></i><div>@Model.FailedDeliveryAttempts başarısız teslimat denemesi kaydedildi.</div></div>
+                    }
+                </div>
+            </div>
+            <div class="card-ct">
+                <div class="card-head"><h3>QR ve Barkod</h3></div>
+                <div class="card-body-ct text-center">
+                    <div class="qr-holder mx-auto mb-3" data-qr="@shareUrl"></div>
+                    <div class="barcode-holder"><svg data-barcode="@Model.TrackCode"></svg></div>
+                    <p class="small text-muted-ct mt-2 mb-0">QR kodu okutarak bu sayfayı paylaşabilirsiniz.</p>
+                </div>
+            </div>
+            <div class="card-ct mt-4 p-4 text-center">
+                <div class="fw-bold mb-1">Tüm detaylara erişin</div>
+                <div class="small text-2 mb-3">Teslimat kodunu görmek ve tüm kargolarınızı yönetmek için giriş yapın.</div>
+                <a class="btn btn-brand w-100" href="/Login">Giriş Yap</a>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+}

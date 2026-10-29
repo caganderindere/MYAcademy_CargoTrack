@@ -1,0 +1,10 @@
+﻿@model ChartViewModel
+@if (!Model.Values.Any(x => x > 0))
+{
+    <partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { ["EmptyTitle"] = "Henüz veri yok", ["EmptyText"] = "Gönderi oluştukça grafik burada şekillenecek.", ["EmptyIcon"] = "bi-bar-chart" }' />
+}
+else
+{
+    <div class="chart-box @(Model.Type == "doughnut" ? "sm" : "")"><canvas data-chart="@(Model.Id)-data"></canvas></div>
+    <script type="application/json" id="@(Model.Id)-data">@Json.Serialize(new { type = Model.Type, label = Model.Label, labels = Model.Labels, values = Model.Values, keys = Model.Keys, horizontal = Model.Horizontal })</script>
+}

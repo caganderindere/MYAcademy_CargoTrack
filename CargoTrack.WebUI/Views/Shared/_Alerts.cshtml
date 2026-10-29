@@ -1,0 +1,12 @@
+﻿@{
+    var success = TempData["Success"] as string;
+    var error = TempData["Error"] as string;
+}
+@if (success is not null)
+{
+    <div class="alert-ct success mb-3" data-autohide role="status"><i class="bi bi-check-circle-fill"></i><div>@success</div></div>
+}
+@if (error is not null)
+{
+    <div class="alert-ct error mb-3" role="alert"><i class="bi bi-exclamation-octagon-fill"></i><div>@error</div></div>
+}

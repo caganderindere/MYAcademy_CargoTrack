@@ -1,0 +1,36 @@
+﻿@model List<ResultTransferCenterDto>
+@{
+    ViewData["Title"] = "Transfer Merkezleri";
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs">Ağ Yönetimi</div>
+        <h1>Transfer Merkezleri</h1>
+        <p class="page-sub">Şubeler arası aktarmanın yapıldığı bölge merkezleri.</p>
+    </div>
+    <div class="page-actions"><a class="btn btn-brand" href="/Admin/TransferCenter/Create"><i class="bi bi-plus-lg"></i> Yeni Merkez</a></div>
+</div>
+<div class="row g-4">
+    @if (!Model.Any())
+    {
+        <div class="col-12"><div class="card-ct"><partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { ["EmptyTitle"] = "Henüz transfer merkezi yok", ["EmptyIcon"] = "bi-diagram-3" }' /></div></div>
+    }
+    @foreach (var item in Model)
+    {
+        <div class="col-md-6 col-xl-4">
+            <div class="card-ct h-100 p-4 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <span class="kpi-ico ico-violet" style="width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.3rem"><i class="bi bi-diagram-3"></i></span>
+                    @if (item.IsActive) { <span class="badge-ct tag-success">Aktif</span> } else { <span class="badge-ct tag-neutral">Pasif</span> }
+                </div>
+                <h3 class="fs-5 mb-1">@item.Name</h3>
+                <div class="small text-2 mb-1"><i class="bi bi-geo-alt me-1"></i>@item.CityName</div>
+                <div class="small text-muted-ct flex-grow-1">@(item.Address ?? "Adres girilmemiş")</div>
+                <div class="d-flex gap-2 mt-3 pt-3 border-top">
+                    <a class="btn btn-soft btn-sm flex-grow-1" href="/Admin/TransferCenter/Update/@item.Id"><i class="bi bi-pencil"></i> Düzenle</a>
+                    <form method="post" action="/Admin/TransferCenter/Delete/@item.Id" asp-antiforgery="true" class="d-inline" data-confirm="@item.Name merkezini silmek istediğinize emin misiniz?"><button class="btn btn-danger-soft btn-icon" type="submit" title="Sil"><i class="bi bi-trash3"></i></button></form>
+                </div>
+            </div>
+        </div>
+    }
+</div>

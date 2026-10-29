@@ -1,0 +1,70 @@
+﻿@model ManagerSummaryDto
+<div class="page-head">
+    <div>
+        <div class="crumbs">Şube Paneli</div>
+        <h1>Merhaba, @Model.EmployeeFullName.Split(' ')[0] 👋</h1>
+        <p class="page-sub"><i class="bi bi-shop me-1"></i>@Model.UnitName · bugünün operasyon özeti</p>
+    </div>
+    <div class="page-actions">
+        <a class="btn btn-ghost" href="/Manager/Cargo/Distribution"><i class="bi bi-truck"></i> Dağıtım Listesi</a>
+        <a class="btn btn-brand" href="/Manager/Cargo/Create"><i class="bi bi-plus-lg"></i> Kargo Kabul</a>
+    </div>
+</div>
+<div class="row g-3 mb-4">
+        <div class="col-6 col-xl-3">
+            <div class="card-ct kpi">
+                <div class="kpi-top"><span class="kpi-lbl">Bugün Gelen</span><span class="kpi-ico ico-blue"><i class="bi bi-box-arrow-in-down"></i></span></div>
+                <div class="kpi-val tabular">@Model.TodayIncoming</div>
+                <div class="kpi-foot">Şubeye ulaşan gönderi</div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card-ct kpi">
+                <div class="kpi-top"><span class="kpi-lbl">Bugün Çıkan</span><span class="kpi-ico ico-violet"><i class="bi bi-box-arrow-up"></i></span></div>
+                <div class="kpi-val tabular">@Model.TodayOutgoing</div>
+                <div class="kpi-foot">Şubeden yola çıkan gönderi</div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card-ct kpi">
+                <div class="kpi-top"><span class="kpi-lbl">Dağıtımda</span><span class="kpi-ico ico-orange"><i class="bi bi-truck"></i></span></div>
+                <div class="kpi-val tabular">@Model.OutForDelivery</div>
+                <div class="kpi-foot">Kuryede bekleyen teslimat</div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card-ct kpi">
+                <div class="kpi-top"><span class="kpi-lbl">Bugün Teslim</span><span class="kpi-ico ico-green"><i class="bi bi-check2-circle"></i></span></div>
+                <div class="kpi-val tabular">@Model.DeliveredToday</div>
+                <div class="kpi-foot">Kod ile doğrulanmış teslimat</div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card-ct kpi">
+                <div class="kpi-top"><span class="kpi-lbl">Geciken</span><span class="kpi-ico ico-red"><i class="bi bi-alarm"></i></span></div>
+                <div class="kpi-val tabular">@Model.DelayedCargos</div>
+                <div class="kpi-foot">SLA süresi aşılmış gönderi</div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card-ct kpi">
+                <div class="kpi-top"><span class="kpi-lbl">Sorunlu</span><span class="kpi-ico ico-red"><i class="bi bi-exclamation-triangle"></i></span></div>
+                <div class="kpi-val tabular">@Model.ProblematicCargos</div>
+                <div class="kpi-foot">Teslim edilemeyen / iade</div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card-ct kpi">
+                <div class="kpi-top"><span class="kpi-lbl">Bugün Kabul</span><span class="kpi-ico ico-teal"><i class="bi bi-plus-square"></i></span></div>
+                <div class="kpi-val tabular">@Model.TodayCreated</div>
+                <div class="kpi-foot">Şubeden oluşturulan gönderi</div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card-ct kpi">
+                <div class="kpi-top"><span class="kpi-lbl">Aktif Toplam</span><span class="kpi-ico ico-blue"><i class="bi bi-lightning-charge"></i></span></div>
+                <div class="kpi-val tabular">@Model.ActiveCargos</div>
+                <div class="kpi-foot">Biriminize bağlı aktif gönderi</div>
+            </div>
+        </div>
+</div>

@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0B1B33" />
+    <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/cargotrack.css" asp-append-version="true" />
+    <title>@ViewData["Title"] | CargoTrack</title>
+</head>
+<body>
+    <div class="auth-wrap">
+        <aside class="auth-side">
+            <a class="brand light" href="/"><img src="~/img/logo-mark.svg" alt="CargoTrack" /><span>Cargo<b>Track</b></span></a>
+            <div>
+                <span class="eyebrow" style="color:#FFB283">CargoTrack Operasyon Ağı</span>
+                <h2 class="mt-3 mb-3">Her gönderi,<br />her an kontrol altında.</h2>
+                <p class="mb-4" style="max-width:420px">Şubeden transfer merkezine, kuryeden alıcıya kadar tüm hareketler tek ekranda. Doğrulama kodlu teslimat ve gerçek zamanlı takip.</p>
+                <div class="row g-3" style="max-width:460px">
+                    <div class="col-6"><div class="quote"><div class="fs-3 fw-bold text-white">%98,4</div><div class="small">zamanında teslim hedefi</div></div></div>
+                    <div class="col-6"><div class="quote"><div class="fs-3 fw-bold text-white">7/24</div><div class="small">canlı gönderi takibi</div></div></div>
+                </div>
+            </div>
+            <div class="small" style="color:#7F92B3">© @DateTime.Now.Year CargoTrack Lojistik A.Ş.</div>
+        </aside>
+        <main class="auth-main">
+            <div class="auth-card">
+                <partial name="_Alerts" />
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    <script src="~/js/cargotrack.js" asp-append-version="true"></script>
+</body>
+</html>

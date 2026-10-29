@@ -1,0 +1,46 @@
+﻿@model CreateTransferCenterDto
+@{
+    ViewData["Title"] = "Yeni Transfer Merkezi";
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs"><a href="/Admin/TransferCenter">Transfer Merkezleri</a> / Yeni Transfer Merkezi</div>
+        <h1>Yeni Transfer Merkezi</h1>
+        
+    </div>
+    <div class="page-actions"><a class="btn btn-ghost" href="/Admin/TransferCenter"><i class="bi bi-arrow-left"></i> Listeye Dön</a></div>
+</div>
+<div class="row g-4">
+    <div class="col-xl-9">
+        <div class="card-ct">
+            <div class="card-head"><h2><i class="bi bi-diagram-3 me-2 text-accent"></i>Yeni Transfer Merkezi</h2></div>
+            <form method="post" class="card-body-ct row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert-ct error col-12"></div>
+    <div class="col-md-6">
+        <label asp-for="Name" class="form-label">Merkez Adı</label>
+        <input asp-for="Name" type="text" class="form-control" placeholder="Örn. Marmara Aktarma Merkezi" />
+        <span asp-validation-for="Name" class="field-error"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="CityId" class="form-label">Şehir</label>
+        <select asp-for="CityId" class="form-select" asp-items="ViewBag.Cities">
+            <option value="">Şehir seçin</option>
+        </select>
+        <span asp-validation-for="CityId" class="field-error"></span>
+    </div>
+    <div class="col-md-12">
+        <label asp-for="Address" class="form-label">Adres</label>
+        <textarea asp-for="Address" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Address" class="field-error"></span>
+    </div>
+                <div class="col-12 d-flex justify-content-end gap-2 pt-2 border-top mt-4">
+                    <a class="btn btn-ghost" href="/Admin/TransferCenter">Vazgeç</a>
+                    <button class="btn btn-brand" type="submit"><i class="bi bi-check2"></i> Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

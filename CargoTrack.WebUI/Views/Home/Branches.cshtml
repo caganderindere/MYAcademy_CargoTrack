@@ -1,0 +1,44 @@
+﻿@model List<ResultBranchDto>
+@{
+    ViewData["Title"] = "Şubelerimiz";
+    var groups = Model.GroupBy(x => x.CityName).OrderBy(x => x.Key).ToList();
+}
+<section class="page-hero">
+    <div class="container">
+        <span class="eyebrow" style="color:#FFB283">Hizmet Noktaları</span>
+        <h1 class="mt-2">Şubelerimiz</h1>
+        <p class="mb-0">@groups.Count ilde @Model.Count aktif şubeyle hizmetinizdeyiz.</p>
+    </div>
+</section>
+<div class="container pb-5">
+    @if (!Model.Any())
+    {
+        <div class="card-ct"><partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { ["EmptyTitle"] = "Henüz aktif şube yok", ["EmptyIcon"] = "bi-shop" }' /></div>
+    }
+    <div class="row g-4">
+        @foreach (var group in groups)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card-ct h-100">
+                    <div class="card-head"><h3><i class="bi bi-geo-alt-fill text-accent me-2"></i>@group.Key</h3><span class="badge-ct badge-plain tag-neutral">@group.Count() şube</span></div>
+                    <div class="card-body-ct">
+                        @foreach (var branch in group)
+                        {
+                            <div class="mb-3 pb-3 border-bottom">
+                                <div class="fw-bold">@branch.Name</div>
+                                @if (branch.Address is not null)
+                                {
+                                    <div class="small text-2 mt-1"><i class="bi bi-signpost me-1"></i>@branch.Address</div>
+                                }
+                                @if (branch.PhoneNumber is not null)
+                                {
+                                    <div class="small text-2 mt-1"><i class="bi bi-telephone me-1"></i>@branch.PhoneNumber</div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

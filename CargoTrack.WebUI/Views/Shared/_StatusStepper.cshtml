@@ -1,0 +1,27 @@
+﻿@model CargoStatus
+@{
+    var steps = new[]
+    {
+        (CargoStatus.Created, "Oluşturuldu", "bi-box-seam"),
+        (CargoStatus.AtOriginBranch, "Çıkış Şubesi", "bi-shop"),
+        (CargoStatus.InTransferCenter, "Transfer Merkezi", "bi-diagram-3"),
+        (CargoStatus.AtDestinationBranch, "Varış Şubesi", "bi-geo-alt"),
+        (CargoStatus.OutForDelivery, "Dağıtımda", "bi-truck"),
+        (CargoStatus.Delivered, "Teslim Edildi", "bi-check2")
+    };
+    var isAlert = Model is CargoStatus.DeliveryFailed or CargoStatus.ReturnInProgress or CargoStatus.ReturnedToSender;
+    var currentIndex = isAlert ? 4 : Array.FindIndex(steps, x => x.Item1 == Model);
+    var delivered = Model == CargoStatus.Delivered;
+}
+<div class="stepper @(isAlert ? "alert-flow" : "")">
+    @for (var i = 0; i < steps.Length; i++)
+    {
+        var state = i < currentIndex || (delivered && i == currentIndex) ? "done" : i == currentIndex ? "current" : "";
+        var label = i == currentIndex && isAlert ? Model.GetDisplayName() : steps[i].Item2;
+        var icon = i == currentIndex && isAlert ? Model.Icon() : state == "done" ? "bi-check2" : steps[i].Item3;
+        <div class="s @state">
+            <div class="dot"><i class="bi @icon"></i></div>
+            <div class="lbl">@label</div>
+        </div>
+    }
+</div>

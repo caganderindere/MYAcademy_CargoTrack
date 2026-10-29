@@ -13,9 +13,13 @@ namespace CargoTrack.Business.Services.CurrentUser
         private Employee? _currentEmployee;
         private Customer? _currentCustomer;
 
+        public Guid? UserId => _currentUserService.UserId;
+
         public bool IsAdmin => _currentUserService.IsInRole(RoleNames.Admin);
 
         public bool IsManager => _currentUserService.IsInRole(RoleNames.Manager);
+
+        public bool IsCustomer => _currentUserService.IsInRole(RoleNames.User);
 
         public async Task<Employee> GetCurrentEmployeeAsync()
         {

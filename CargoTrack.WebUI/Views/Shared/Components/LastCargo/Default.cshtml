@@ -1,0 +1,43 @@
+﻿@model CargoDetailDto?
+@if (Model is null)
+{
+    <div class="card-ct">
+        <partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { ["EmptyTitle"] = "Henüz kargon yok", ["EmptyText"] = "Bir gönderi oluşturulduğunda durumunu buradan canlı izleyebilirsin.", ["EmptyIcon"] = "bi-box-seam" }' />
+    </div>
+}
+else
+{
+    <div class="card-ct">
+        <div class="card-head">
+            <div>
+                <div class="sub">Son kargo durumu</div>
+                <h2 class="mono">@Model.TrackCode</h2>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+                <partial name="_StatusBadge" model="Model.CargoStatus" />
+                <a class="btn btn-soft btn-sm" href="/User/Cargo/Detail/@Model.Id">Detay</a>
+            </div>
+        </div>
+        <div class="card-body-ct">
+            <partial name="_StatusStepper" model="Model.CargoStatus" />
+            <div class="row g-4 mt-1">
+                <div class="col-md-5">
+                    <div class="p-3 rounded-4" style="background:var(--ct-surface)">
+                        <div class="small text-muted-ct fw-bold text-uppercase">@(Model.DeliveredDate is null ? "Tahmini teslim" : "Teslim edildi")</div>
+                        <div class="fs-5 fw-bold mt-1">@((Model.DeliveredDate ?? Model.EstimatedDeliveryDate).ToString("dd MMMM dddd, HH:mm"))</div>
+                        @if (Model.IsDelayed)
+                        {
+                            <span class="badge-ct badge-plain tag-delay mt-2"><i class="bi bi-alarm"></i> Gecikmede</span>
+                        }
+                        <hr />
+                        <div class="small text-2">@Model.OriginBranchCityName <i class="bi bi-arrow-right mx-1"></i> @Model.DestinationBranchCityName</div>
+                        <div class="small text-2 mt-1">@Model.SenderFullName <i class="bi bi-arrow-right mx-1"></i> @Model.ReceiverFullName</div>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <partial name="_CargoTimeline" model="Model.Movements.Take(4).ToList()" />
+                </div>
+            </div>
+        </div>
+    </div>
+}

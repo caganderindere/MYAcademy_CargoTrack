@@ -1,35 +1,59 @@
 ﻿@model CreateBranchDto
 @{
-    ViewData["Title"] = "Create";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Yeni Şube";
 }
-
-<h3>Yeni Şube Oluştur</h3>
-
-<form method="post">
-    <label>Şube İsmi</label>
-    <input type="text" asp-for="Name" class="form-control" />
-    <span class="text-danger" asp-validation-for="Name"></span>
-    <br />
-    <label>Şehir</label>
-    <select asp-for="CityId" class="form-control" asp-items="@ViewBag.cities">
-        <option disabled selected>---Şehri Seçiniz---</option>
-    </select>
-    <span class="text-danger" asp-validation-for="CityId"></span>
-    <br />
-    <label>Bağlı Transfer Merkezi</label>
-    <select asp-for="TransferCenterId" class="form-control" asp-items="@ViewBag.transferCenters">
-        <option value="">---Seçilmedi---</option>
-    </select>
-    <br />
-    <label>Telefon</label>
-    <input type="text" asp-for="PhoneNumber" class="form-control" />
-    <span class="text-danger" asp-validation-for="PhoneNumber"></span>
-    <br />
-    <label>Adres</label>
-    <textarea asp-for="Address" class="form-control" rows="3"></textarea>
-    <span class="text-danger" asp-validation-for="Address"></span>
-    <br />
-    <button class="btn btn-dark">Kaydet</button>
-
-</form>
+<div class="page-head">
+    <div>
+        <div class="crumbs"><a href="/Admin/Branch">Şubeler</a> / Yeni Şube</div>
+        <h1>Yeni Şube</h1>
+        <p class="page-sub">Yeni bir hizmet noktası tanımlayın.</p>
+    </div>
+    <div class="page-actions"><a class="btn btn-ghost" href="/Admin/Branch"><i class="bi bi-arrow-left"></i> Listeye Dön</a></div>
+</div>
+<div class="row g-4">
+    <div class="col-xl-9">
+        <div class="card-ct">
+            <div class="card-head"><h2><i class="bi bi-shop me-2 text-accent"></i>Yeni Şube</h2></div>
+            <form method="post" class="card-body-ct row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert-ct error col-12"></div>
+    <div class="col-md-6">
+        <label asp-for="Name" class="form-label">Şube Adı</label>
+        <input asp-for="Name" type="text" class="form-control" placeholder="Örn. Kadıköy Şubesi" />
+        <span asp-validation-for="Name" class="field-error"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="CityId" class="form-label">Şehir</label>
+        <select asp-for="CityId" class="form-select" asp-items="ViewBag.Cities">
+            <option value="">Şehir seçin</option>
+        </select>
+        <span asp-validation-for="CityId" class="field-error"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="TransferCenterId" class="form-label">Bağlı Transfer Merkezi</label>
+        <select asp-for="TransferCenterId" class="form-select" asp-items="ViewBag.TransferCenters">
+            <option value="">Bağlı merkez yok</option>
+        </select>
+        <span asp-validation-for="TransferCenterId" class="field-error"></span>
+        <div class="form-hint">Şubeden çıkan gönderilerin aktarıldığı bölge merkezi.</div>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="PhoneNumber" class="form-label">Telefon</label>
+        <input asp-for="PhoneNumber" type="tel" class="form-control" placeholder="0216XXXXXXX" />
+        <span asp-validation-for="PhoneNumber" class="field-error"></span>
+    </div>
+    <div class="col-md-12">
+        <label asp-for="Address" class="form-label">Adres</label>
+        <textarea asp-for="Address" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Address" class="field-error"></span>
+    </div>
+                <div class="col-12 d-flex justify-content-end gap-2 pt-2 border-top mt-4">
+                    <a class="btn btn-ghost" href="/Admin/Branch">Vazgeç</a>
+                    <button class="btn btn-brand" type="submit"><i class="bi bi-check2"></i> Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

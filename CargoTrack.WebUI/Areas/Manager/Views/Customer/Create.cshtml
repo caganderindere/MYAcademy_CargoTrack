@@ -1,0 +1,49 @@
+﻿@model CreateCustomerDto
+@{
+    ViewData["Title"] = "Yeni Müşteri";
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs"><a href="/Manager/Customer">Müşteriler</a> / Yeni Müşteri</div>
+        <h1>Yeni Müşteri</h1>
+        <p class="page-sub">Kayıttan sonra müşteriye teslimat adresi ekleyebilirsiniz.</p>
+    </div>
+    <div class="page-actions"><a class="btn btn-ghost" href="/Manager/Customer"><i class="bi bi-arrow-left"></i> Listeye Dön</a></div>
+</div>
+<div class="row g-4">
+    <div class="col-xl-9">
+        <div class="card-ct">
+            <div class="card-head"><h2><i class="bi bi-person-plus me-2 text-accent"></i>Yeni Müşteri</h2></div>
+            <form method="post" class="card-body-ct row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert-ct error col-12"></div>
+    <div class="col-md-6">
+        <label asp-for="FirstName" class="form-label">Ad</label>
+        <input asp-for="FirstName" type="text" class="form-control" />
+        <span asp-validation-for="FirstName" class="field-error"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="LastName" class="form-label">Soyad</label>
+        <input asp-for="LastName" type="text" class="form-control" />
+        <span asp-validation-for="LastName" class="field-error"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="PhoneNumber" class="form-label">Cep Telefonu</label>
+        <input asp-for="PhoneNumber" type="tel" class="form-control" placeholder="05XXXXXXXXX" />
+        <span asp-validation-for="PhoneNumber" class="field-error"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Email" class="form-label">E-posta</label>
+        <input asp-for="Email" type="email" class="form-control" placeholder="Opsiyonel" />
+        <span asp-validation-for="Email" class="field-error"></span>
+    </div>
+                <div class="col-12 d-flex justify-content-end gap-2 pt-2 border-top mt-4">
+                    <a class="btn btn-ghost" href="/Manager/Customer">Vazgeç</a>
+                    <button class="btn btn-brand" type="submit"><i class="bi bi-check2"></i> Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

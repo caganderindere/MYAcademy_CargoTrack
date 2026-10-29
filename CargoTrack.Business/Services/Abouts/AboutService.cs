@@ -1,14 +1,13 @@
-﻿using CargoTrack.DataAccess.Repositories.Abouts;
+﻿using CargoTrack.Business.Exceptions;
+using CargoTrack.DataAccess.Repositories.Abouts;
 using CargoTrack.DTO.DTOs.AboutDtos;
 using CargoTrack.Entity.Entities;
 using Mapster;
-using System.ComponentModel.DataAnnotations;
 
 namespace CargoTrack.Business.Services.Abouts
 {
     public class AboutService(IAboutRepository _aboutRepository) : IAboutService
     {
-
         public async Task CreateAsync(CreateAboutDto createAboutDto)
         {
             var about = createAboutDto.Adapt<About>();
@@ -17,14 +16,8 @@ namespace CargoTrack.Business.Services.Abouts
 
         public async Task DeleteAsync(Guid id)
         {
-          var about = await _aboutRepository.GetByIdAsync(id);
-            if(about is null)
-            {
-                throw new ValidationException("About Not Found");
-            }
-
+            var about = await GetExistingAsync(id);
             await _aboutRepository.DeleteAsync(about);
-
         }
 
         public async Task<List<ResultAboutDto>> GetAllAsync()
@@ -35,19 +28,20 @@ namespace CargoTrack.Business.Services.Abouts
 
         public async Task<UpdateAboutDto> GetByIdAsync(Guid id)
         {
-            var about = await _aboutRepository.GetByIdAsync(id);
-            if (about is null)
-            {
-                throw new ValidationException("About Not Found");
-            }
-
+            var about = await GetExistingAsync(id);
             return about.Adapt<UpdateAboutDto>();
         }
 
         public async Task UpdateAsync(UpdateAboutDto updateAboutDto)
         {
-            var about = updateAboutDto.Adapt<About>();
+            var about = await GetExistingAsync(updateAboutDto.Id);
+            updateAboutDto.Adapt(about);
             await _aboutRepository.UpdateAsync(about);
+        }
+
+        private async Task<About> GetExistingAsync(Guid id)
+        {
+            return await _aboutRepository.GetByIdAsync(id) ?? throw new BusinessException("İçerik bulunamadı.");
         }
     }
 }

@@ -1,0 +1,42 @@
+﻿@model UserSummaryDto
+<div class="page-head">
+    <div>
+        <div class="crumbs">Hesabım</div>
+        <h1>Hoş geldin, @Model.FullName.Split(' ')[0] 👋</h1>
+        <p class="page-sub">Gönderdiğin ve sana gelen tüm kargolar burada.</p>
+    </div>
+    <div class="page-actions">
+        <a class="btn btn-ghost" href="/User/Address"><i class="bi bi-geo-alt"></i> Adreslerim</a>
+        <a class="btn btn-brand" href="/User/Cargo"><i class="bi bi-box-seam"></i> Kargolarım</a>
+    </div>
+</div>
+<div class="row g-3 mb-4">
+        <div class="col-6 col-xl-3">
+            <div class="card-ct kpi">
+                <div class="kpi-top"><span class="kpi-lbl">Aktif Kargo</span><span class="kpi-ico ico-orange"><i class="bi bi-lightning-charge"></i></span></div>
+                <div class="kpi-val tabular">@Model.ActiveCargos</div>
+                <div class="kpi-foot">Yolda olan gönderilerin</div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card-ct kpi">
+                <div class="kpi-top"><span class="kpi-lbl">Sana Gelen</span><span class="kpi-ico ico-blue"><i class="bi bi-box-arrow-in-down"></i></span></div>
+                <div class="kpi-val tabular">@Model.IncomingActive</div>
+                <div class="kpi-foot">Teslim bekleyen</div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card-ct kpi">
+                <div class="kpi-top"><span class="kpi-lbl">Gönderdiğin</span><span class="kpi-ico ico-violet"><i class="bi bi-box-arrow-up"></i></span></div>
+                <div class="kpi-val tabular">@Model.OutgoingActive</div>
+                <div class="kpi-foot">Aktif gönderilerin</div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card-ct kpi">
+                <div class="kpi-top"><span class="kpi-lbl">Teslim Aldığın</span><span class="kpi-ico ico-green"><i class="bi bi-check2-circle"></i></span></div>
+                <div class="kpi-val tabular">@Model.DeliveredCargos</div>
+                <div class="kpi-foot">Toplam @Model.TotalCargos kargo</div>
+            </div>
+        </div>
+</div>

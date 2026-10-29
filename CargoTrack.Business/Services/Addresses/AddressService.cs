@@ -1,19 +1,30 @@
 ﻿using CargoTrack.Business.Exceptions;
+using CargoTrack.Business.Rules;
+using CargoTrack.Business.Services.CurrentUser;
 using CargoTrack.DataAccess.Repositories.Addresses;
 using CargoTrack.DataAccess.Repositories.Customers;
 using CargoTrack.DTO.DTOs.AddressDtos;
 using CargoTrack.Entity.Entities;
-using CargoTrack.Entity.Entities.Enums;
 using Mapster;
 
 namespace CargoTrack.Business.Services.Addresses
 {
     public class AddressService(IAddressRepository _addressRepository,
-                                ICustomerRepository _customerRepository) : IAddressService
+                                ICustomerRepository _customerRepository,
+                                IUserContextService _userContextService) : IAddressService
     {
         public async Task<List<ResultAddressDto>> GetByCustomerIdAsync(Guid customerId)
         {
+            await EnsureCanAccessCustomerAsync(customerId);
+
             var addresses = await _addressRepository.GetByCustomerIdAsync(customerId);
+            return addresses.Adapt<List<ResultAddressDto>>();
+        }
+
+        public async Task<List<ResultAddressDto>> GetMyAddressesAsync()
+        {
+            var customer = await _userContextService.GetCurrentCustomerAsync();
+            var addresses = await _addressRepository.GetByCustomerIdAsync(customer.Id);
             return addresses.Adapt<List<ResultAddressDto>>();
         }
 
@@ -25,6 +36,11 @@ namespace CargoTrack.Business.Services.Addresses
 
         public async Task CreateAsync(CreateAddressDto createAddressDto)
         {
+            if (IsCustomerOnly())
+            {
+                createAddressDto.CustomerId = (await _userContextService.GetCurrentCustomerAsync()).Id;
+            }
+
             var customer = await _customerRepository.GetByIdAsync(createAddressDto.CustomerId);
 
             if (customer is null)
@@ -48,8 +64,7 @@ namespace CargoTrack.Business.Services.Addresses
         {
             var address = await GetExistingAsync(id);
 
-            var hasActiveCargo = address.Cargos.Any(x => x.CargoStatus != CargoStatus.Delivered
-                                                      && x.CargoStatus != CargoStatus.ReturnedToSender);
+            var hasActiveCargo = address.Cargos.Any(x => !CargoSlaRules.IsFinished(x.CargoStatus));
 
             if (hasActiveCargo)
             {
@@ -68,7 +83,29 @@ namespace CargoTrack.Business.Services.Addresses
                 throw new BusinessException("Adres bulunamadı.");
             }
 
+            await EnsureCanAccessCustomerAsync(address.CustomerId);
+
             return address;
+        }
+
+        private async Task EnsureCanAccessCustomerAsync(Guid customerId)
+        {
+            if (!IsCustomerOnly())
+            {
+                return;
+            }
+
+            var customer = await _userContextService.GetCurrentCustomerAsync();
+
+            if (customer.Id != customerId)
+            {
+                throw new BusinessException("Bu adres bilgilerine erişim yetkiniz yok.");
+            }
+        }
+
+        private bool IsCustomerOnly()
+        {
+            return !_userContextService.IsAdmin && !_userContextService.IsManager;
         }
     }
 }

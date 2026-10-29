@@ -1,0 +1,65 @@
+﻿@model UpdateCargoPriceDto
+@{
+    ViewData["Title"] = "Tarifeyi Düzenle";
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs"><a href="/Admin/CargoPrice">Fiyat Tarifeleri</a> / Tarifeyi Düzenle</div>
+        <h1>Tarifeyi Düzenle</h1>
+        
+    </div>
+    <div class="page-actions"><a class="btn btn-ghost" href="/Admin/CargoPrice"><i class="bi bi-arrow-left"></i> Listeye Dön</a></div>
+</div>
+<div class="row g-4">
+    <div class="col-xl-8">
+        <div class="card-ct">
+            <div class="card-head"><h2><i class="bi bi-tags me-2 text-accent"></i>Tarifeyi Düzenle</h2></div>
+            <form method="post" class="card-body-ct row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert-ct error col-12"></div>
+    <input type="hidden" asp-for="Id" />
+    <div class="col-md-12">
+        <label asp-for="DistanceZone" class="form-label">Mesafe Bölgesi</label>
+        <select asp-for="DistanceZone" class="form-select" asp-items="Html.GetEnumSelectList<DistanceZone>()">
+            <option value="">Bölge seçin</option>
+        </select>
+        <span asp-validation-for="DistanceZone" class="field-error"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="MinDesi" class="form-label">Minimum Desi (hariç)</label>
+        <input asp-for="MinDesi" type="number" step="0.01" min="0" class="form-control" />
+        <span asp-validation-for="MinDesi" class="field-error"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="MaxDesi" class="form-label">Maksimum Desi (dahil)</label>
+        <input asp-for="MaxDesi" type="number" step="0.01" min="0" class="form-control" />
+        <span asp-validation-for="MaxDesi" class="field-error"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Price" class="form-label">Baz Fiyat (₺)</label>
+        <input asp-for="Price" type="number" step="0.01" min="0" class="form-control" />
+        <span asp-validation-for="Price" class="field-error"></span>
+    </div>
+    <div class="col-md-12">
+        <div class="form-check form-switch p-3 rounded-4 d-flex align-items-center gap-3" style="background:var(--ct-surface)">
+            <input asp-for="IsActive" class="form-check-input ms-0 mt-0" type="checkbox" role="switch" style="width:2.6em;height:1.4em" />
+            <label asp-for="IsActive" class="form-check-label fw-bold">Tarife aktif</label>
+        </div>
+    </div>
+                <div class="col-12 d-flex justify-content-end gap-2 pt-2 border-top mt-4">
+                    <a class="btn btn-ghost" href="/Admin/CargoPrice">Vazgeç</a>
+                    <button class="btn btn-brand" type="submit"><i class="bi bi-check2"></i> Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card-ct p-4">
+            <h3 class="fs-6"><i class="bi bi-calculator text-accent me-2"></i>Hesaplama mantığı</h3>
+            <p class="small text-2">Desi = En × Boy × Yükseklik / 3000. Ücretlendirmede desi ile ağırlıktan büyük olan kullanılır.</p>
+            <p class="small text-2 mb-0">Aynı bölgede <b>çakışan aktif aralık</b> tanımlanamaz. Örneğin 1–5 varken 3–8 eklenemez; 5–10 eklenebilir.</p>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

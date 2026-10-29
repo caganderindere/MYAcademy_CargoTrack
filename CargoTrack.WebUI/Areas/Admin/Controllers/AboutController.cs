@@ -7,13 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace CargoTrack.WebUI.Areas.Admin.Controllers
 {
     [Area(Area.Admin)]
-    [Authorize(Roles=Roles.Admin)]
+    [Authorize(Roles = Roles.Admin)]
     public class AboutController(IAboutService _aboutService) : Controller
     {
         public async Task<IActionResult> Index()
         {
-            var abouts = await _aboutService.GetAllAsync();
-            return View(abouts);
+            return View(await _aboutService.GetAllAsync());
         }
 
         public IActionResult Create()
@@ -30,13 +29,13 @@ namespace CargoTrack.WebUI.Areas.Admin.Controllers
             }
 
             await _aboutService.CreateAsync(aboutDto);
+            TempData["Success"] = "İçerik eklendi.";
             return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Update(Guid id)
         {
-            var about = await _aboutService.GetByIdAsync(id);
-            return View(about);
+            return View(await _aboutService.GetByIdAsync(id));
         }
 
         [HttpPost]
@@ -48,14 +47,16 @@ namespace CargoTrack.WebUI.Areas.Admin.Controllers
             }
 
             await _aboutService.UpdateAsync(aboutDto);
+            TempData["Success"] = "İçerik güncellendi.";
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
         public async Task<IActionResult> Delete(Guid id)
         {
             await _aboutService.DeleteAsync(id);
+            TempData["Success"] = "İçerik silindi.";
             return RedirectToAction(nameof(Index));
         }
-
-}
+    }
 }

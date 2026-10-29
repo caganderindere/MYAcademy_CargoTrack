@@ -1,0 +1,21 @@
+﻿@model List<NamedCountDto>
+@if (!Model.Any())
+{
+    <partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { ["EmptyTitle"] = "Son 30 günde gönderi yok", ["EmptyIcon"] = "bi-shop" }' />
+}
+else
+{
+    var max = Model.Max(x => x.Count);
+    <ul class="rank-list">
+        @for (var i = 0; i < Model.Count; i++)
+        {
+            <li>
+                <span class="rk">@(i + 1)</span>
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between"><span class="fw-bold">@Model[i].Name</span><span class="fw-bold tabular">@Model[i].Count</span></div>
+                    <div class="progress-ct mt-2"><div style="width:@(Model[i].Count * 100 / max)%"></div></div>
+                </div>
+            </li>
+        }
+    </ul>
+}

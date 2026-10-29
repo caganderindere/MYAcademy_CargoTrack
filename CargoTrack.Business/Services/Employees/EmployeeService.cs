@@ -1,6 +1,8 @@
 ﻿using CargoTrack.Business.Constants;
 using CargoTrack.Business.Exceptions;
+using CargoTrack.Business.Helpers;
 using CargoTrack.DataAccess.Repositories.Employees;
+using CargoTrack.DTO.DTOs.Common;
 using CargoTrack.DTO.DTOs.EmployeeDtos;
 using CargoTrack.Entity.Entities;
 using CargoTrack.Entity.Entities.Enums;
@@ -16,6 +18,28 @@ namespace CargoTrack.Business.Services.Employees
         {
             var employees = await _employeeRepository.GetAllAsync();
             return employees.Adapt<List<ResultEmployeeDto>>();
+        }
+
+        public async Task<PagedResultDto<ResultEmployeeDto>> GetPagedAsync(EmployeeFilterDto filter)
+        {
+            var (page, pageSize) = filter.Normalize();
+            var search = string.IsNullOrWhiteSpace(filter.Search) ? null : filter.Search.Trim();
+            var position = filter.Position;
+            var branchId = filter.BranchId;
+
+            var paged = await _employeeRepository.GetPagedAsync(page, pageSize, x =>
+                (search == null || x.FirstName.Contains(search) || x.LastName.Contains(search) || x.PhoneNumber.Contains(search))
+                && (position == null || x.Position == position)
+                && (branchId == null || x.BranchId == branchId),
+                q => q.OrderBy(x => x.FirstName).ThenBy(x => x.LastName));
+
+            return paged.ToPagedResult<Employee, ResultEmployeeDto>();
+        }
+
+        public async Task<ResultEmployeeDto> GetSummaryAsync(Guid id)
+        {
+            var employee = await GetExistingAsync(id);
+            return employee.Adapt<ResultEmployeeDto>();
         }
 
         public async Task<UpdateEmployeeDto> GetByIdAsync(Guid id)

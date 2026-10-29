@@ -1,4 +1,4 @@
-﻿using CargoTrack.DTO.DTOs.BranchDtos;
+﻿using CargoTrack.Entity.Entities.Enums;
 
 namespace CargoTrack.DTO.DTOs.CityDtos
 {
@@ -6,6 +6,6 @@ namespace CargoTrack.DTO.DTOs.CityDtos
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public IList<BranchDto> Branches { get; set; }
+        public Region Region { get; set; }
     }
 }

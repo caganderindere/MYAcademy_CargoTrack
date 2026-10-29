@@ -1,0 +1,40 @@
+﻿@{
+    ViewData["Title"] = "Genel Bakış";
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs">Yönetim Paneli</div>
+        <h1>Genel Bakış</h1>
+        <p class="page-sub">@DateTime.Now.ToString("dd MMMM yyyy, dddd") · tüm operasyonun anlık durumu</p>
+    </div>
+    <div class="page-actions"><a class="btn btn-ghost" href="/Admin/Report"><i class="bi bi-graph-up-arrow"></i> Performans Raporu</a><a class="btn btn-brand" href="/Manager/Cargo/Create"><i class="bi bi-plus-lg"></i> Yeni Gönderi</a></div>
+</div>
+@await Component.InvokeAsync("AdminSummary")
+<div class="row g-4 mb-4">
+    <div class="col-xl-8">
+        <div class="card-ct h-100">
+            <div class="card-head"><div><h2>Son 7 Günlük Gönderi Trafiği</h2><div class="sub">Günlük oluşturulan gönderi sayısı</div></div></div>
+            <div class="card-body-ct">@await Component.InvokeAsync("DailyTrafficChart", new { days = 7 })</div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card-ct h-100">
+            <div class="card-head"><div><h2>Durum Dağılımı</h2><div class="sub">Tüm gönderiler</div></div></div>
+            <div class="card-body-ct">@await Component.InvokeAsync("StatusDistributionChart")</div>
+        </div>
+    </div>
+</div>
+<div class="row g-4">
+    <div class="col-xl-8">
+        <div class="card-ct h-100">
+            <div class="card-head"><h2>Son Gönderiler</h2><a class="btn btn-soft btn-sm" href="/Manager/Cargo/Index">Tümünü Gör</a></div>
+            @await Component.InvokeAsync("RecentCargos", new { take = 7 })
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card-ct h-100">
+            <div class="card-head"><div><h2>En Yoğun 5 Şube</h2><div class="sub">Son 30 gün · çıkış hacmi</div></div></div>
+            <div class="card-body-ct">@await Component.InvokeAsync("TopBranches", new { take = 5 })</div>
+        </div>
+    </div>
+</div>

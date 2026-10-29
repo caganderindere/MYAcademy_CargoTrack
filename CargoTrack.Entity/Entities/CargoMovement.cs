@@ -17,7 +17,7 @@ namespace CargoTrack.Entity.Entities
 
         public Guid? EmployeeId { get; set; }
 
-public virtual Cargo Cargo { get; set; }
+        public virtual Cargo Cargo { get; set; }
         public virtual Branch? Branch { get; set; }
         public virtual TransferCenter? TransferCenter { get; set; }
         public virtual Employee? Employee { get; set; }

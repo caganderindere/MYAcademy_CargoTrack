@@ -1,4 +1,5 @@
-﻿using CargoTrack.Entity.Entities;
+﻿using CargoTrack.DataAccess.Auditing;
+using CargoTrack.Entity.Entities;
 using CargoTrack.Entity.Entities.Common;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -7,8 +8,11 @@ namespace CargoTrack.DataAccess.Context
 {
     public class AppDbContext : IdentityDbContext<AppUser, AppRole, Guid>
     {
-        public AppDbContext(DbContextOptions options) : base(options)
+        private readonly IAuditUserProvider? _auditUserProvider;
+
+        public AppDbContext(DbContextOptions options, IAuditUserProvider? auditUserProvider = null) : base(options)
         {
+            _auditUserProvider = auditUserProvider;
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -35,13 +39,25 @@ namespace CargoTrack.DataAccess.Context
         public override int SaveChanges()
         {
             SetAuditFields();
+            AddAuditLogs();
             return base.SaveChanges();
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             SetAuditFields();
+            AddAuditLogs();
             return base.SaveChangesAsync(cancellationToken);
+        }
+
+        private void AddAuditLogs()
+        {
+            var logs = AuditEntryBuilder.Build(ChangeTracker.Entries<BaseEntity>().ToList(), _auditUserProvider);
+
+            if (logs.Count > 0)
+            {
+                AuditLogs.AddRange(logs);
+            }
         }
 
         private void SetAuditFields()

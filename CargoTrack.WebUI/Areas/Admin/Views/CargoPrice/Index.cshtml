@@ -1,0 +1,43 @@
+﻿@model List<ResultCargoPriceDto>
+@{
+    ViewData["Title"] = "Fiyat Tarifeleri";
+    var zones = Model.GroupBy(x => x.DistanceZone).OrderBy(x => x.Key).ToList();
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs">Ticari</div>
+        <h1>Fiyat Tarifeleri</h1>
+        <p class="page-sub">Mesafe bölgesi ve desi aralığına göre baz fiyatlar. Teslimat tipi çarpanı ve ek hizmet ücretleri otomatik eklenir.</p>
+    </div>
+    <div class="page-actions"><a class="btn btn-brand" href="/Admin/CargoPrice/Create"><i class="bi bi-plus-lg"></i> Yeni Tarife</a></div>
+</div>
+<div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="card-ct kpi"><div class="kpi-top"><span class="kpi-lbl">Hızlı Kargo</span><span class="kpi-ico ico-orange"><i class="bi bi-lightning-charge"></i></span></div><div class="kpi-val">×1,5</div><div class="kpi-foot">Baz fiyat çarpanı</div></div></div>
+    <div class="col-md-4"><div class="card-ct kpi"><div class="kpi-top"><span class="kpi-lbl">Aynı Gün</span><span class="kpi-ico ico-teal"><i class="bi bi-clock-history"></i></span></div><div class="kpi-val">×2,0</div><div class="kpi-foot">Yalnızca şehir içi</div></div></div>
+    <div class="col-md-4"><div class="card-ct kpi"><div class="kpi-top"><span class="kpi-lbl">Ek Hizmetler</span><span class="kpi-ico ico-violet"><i class="bi bi-plus-circle"></i></span></div><div class="kpi-val fs-5 mt-1">Sigorta 25 ₺ · Kapıda 15 ₺</div><div class="kpi-foot">SMS 5 ₺ · Hafta sonu 30 ₺</div></div></div>
+</div>
+<div class="row g-4">
+    @foreach (var zone in zones)
+    {
+        <div class="col-xl-4">
+            <div class="card-ct h-100">
+                <div class="card-head"><h2>@zone.Key.GetDisplayName()</h2><span class="badge-ct badge-plain tag-neutral">@zone.Count() kademe</span></div>
+                <div class="table-responsive">
+                    <table class="table table-ct">
+                        <thead><tr><th>Desi Aralığı</th><th class="text-end">Fiyat</th><th></th></tr></thead>
+                        <tbody>
+                            @foreach (var item in zone.OrderBy(x => x.MinDesi))
+                            {
+                                <tr class="@(item.IsActive ? "" : "opacity-50")">
+                                    <td><span class="fw-bold tabular">@item.MinDesi – @item.MaxDesi</span> <span class="cell-sub">desi</span>@if (!item.IsActive) { <span class="badge-ct tag-neutral ms-1">Pasif</span> }</td>
+                                    <td class="text-end fw-bold tabular">@item.Price.ToMoney()</td>
+                                    <td><div class="table-actions"><a class="btn btn-soft btn-icon" href="/Admin/CargoPrice/Update/@item.Id"><i class="bi bi-pencil"></i></a><form method="post" action="/Admin/CargoPrice/Delete/@item.Id" asp-antiforgery="true" class="d-inline" data-confirm="Bu tarife kademesini silmek istediğinize emin misiniz?"><button class="btn btn-danger-soft btn-icon" type="submit" title="Sil"><i class="bi bi-trash3"></i></button></form></div></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

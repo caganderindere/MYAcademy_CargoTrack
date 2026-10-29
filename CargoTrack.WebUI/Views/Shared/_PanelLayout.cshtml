@@ -1,0 +1,86 @@
+﻿@{
+    var isAdmin = User.IsInRole(Roles.Admin);
+    var isManager = User.IsInRole(Roles.Manager);
+    var roleLabel = isAdmin ? "Sistem Yöneticisi" : isManager ? "Şube Operasyonu" : "Müşteri";
+    var searchAction = isAdmin || isManager ? "/Manager/Cargo/Index" : "/User/Cargo";
+    var userName = User.Identity?.Name ?? "Kullanıcı";
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0B1B33" />
+    <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/cargotrack.css" asp-append-version="true" />
+    <title>@(ViewData["Title"] ?? "Panel") | CargoTrack</title>
+    @await RenderSectionAsync("Head", required: false)
+</head>
+<body>
+    <div class="panel">
+        <aside class="sidebar">
+            <div class="sb-brand">
+                <a class="brand light" href="/Login/Panel"><img src="~/img/logo-mark.svg" alt="CargoTrack" /><span>Cargo<b>Track</b></span></a>
+                <div class="mt-2 small fw-bold" style="color:#5E7192;letter-spacing:.08em;text-transform:uppercase">@roleLabel</div>
+            </div>
+            <nav class="sb-scroll">
+                @await Component.InvokeAsync("SidebarMenu")
+            </nav>
+            <div class="sb-foot">
+                <a href="/" class="sb-link"><i class="bi bi-house"></i> Kurumsal Site</a>
+                <a href="/Login/Logout" class="sb-link"><i class="bi bi-box-arrow-right"></i> Çıkış Yap</a>
+            </div>
+        </aside>
+        <div class="sidebar-backdrop"></div>
+        <div class="panel-main">
+            <header class="topbar">
+                <button type="button" class="btn btn-ghost btn-icon sidebar-toggle" data-sidebar-toggle aria-label="Menü"><i class="bi bi-list"></i></button>
+                <form class="tb-search input-icon" action="@searchAction" method="get">
+                    <i class="bi bi-search"></i>
+                    <input name="Search" class="form-control" placeholder="Takip no, gönderici veya alıcı ara..." autocomplete="off" />
+                </form>
+                <div class="ms-auto d-flex align-items-center gap-2">
+                    @if (isAdmin || isManager)
+                    {
+                        <a class="btn btn-brand btn-sm d-none d-md-inline-flex" href="/Manager/Cargo/Create"><i class="bi bi-plus-lg"></i> Yeni Gönderi</a>
+                    }
+                    <div class="dropdown">
+                        <a class="user-chip" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="av">@userName.Initials()</span>
+                            <span class="d-none d-sm-block pe-2">
+                                <span class="nm d-block">@userName</span>
+                                <span class="rl">@roleLabel</span>
+                            </span>
+                            <i class="bi bi-chevron-down small text-muted-ct pe-1"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow rounded-4 p-2 mt-2">
+                            <li><a class="dropdown-item rounded-3 py-2" href="/"><i class="bi bi-house me-2"></i>Kurumsal Site</a></li>
+                            <li><a class="dropdown-item rounded-3 py-2" href="/Tracking"><i class="bi bi-search me-2"></i>Kargo Takip</a></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li><a class="dropdown-item rounded-3 py-2 text-danger" href="/Login/Logout"><i class="bi bi-box-arrow-right me-2"></i>Çıkış Yap</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+            <main class="panel-content">
+                <partial name="_Alerts" />
+                @RenderBody()
+            </main>
+            <footer class="panel-footer d-flex justify-content-between flex-wrap gap-2">
+                <span>© @DateTime.Now.Year CargoTrack Lojistik A.Ş.</span>
+                <span>Operasyon saati: @DateTime.Now.ToString("dd MMMM yyyy, HH:mm")</span>
+            </footer>
+        </div>
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    <script src="~/js/cargotrack.js" asp-append-version="true"></script>
+</body>
+</html>

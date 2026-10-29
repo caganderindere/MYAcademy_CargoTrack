@@ -1,0 +1,32 @@
+﻿@model List<ResultAddressDto>
+@{
+    ViewData["Title"] = "Adreslerim";
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs">Hesabım</div>
+        <h1>Adreslerim</h1>
+        <p class="page-sub">Size gönderilecek kargolar için kullanılacak teslimat adresleri.</p>
+    </div>
+    <div class="page-actions"><a class="btn btn-brand" href="/User/Address/Create"><i class="bi bi-plus-lg"></i> Yeni Adres</a></div>
+</div>
+<div class="row g-4">
+    @if (!Model.Any())
+    {
+        <div class="col-12"><div class="card-ct"><partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { ["EmptyTitle"] = "Kayıtlı adres yok", ["EmptyText"] = "Kargo gönderebilmek için en az bir teslimat adresi gereklidir.", ["EmptyIcon"] = "bi-geo-alt" }' /></div></div>
+    }
+    @foreach (var item in Model)
+    {
+        <div class="col-md-6 col-xl-4">
+            <div class="card-ct h-100 p-4 d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2"><span class="kpi-ico ico-orange" style="width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center"><i class="bi bi-house-door"></i></span><h3 class="fs-6 mb-0">@item.Title</h3></div>
+                <p class="text-2 small flex-grow-1 mb-2">@item.FullAddress</p>
+                <div class="small fw-bold"><i class="bi bi-geo-alt text-accent me-1"></i>@item.District / @item.CityName</div>
+                <div class="d-flex gap-2 mt-3 pt-3 border-top">
+                    <a class="btn btn-soft btn-sm flex-grow-1" href="/User/Address/Update/@item.Id"><i class="bi bi-pencil"></i> Düzenle</a>
+                    <form method="post" action="/User/Address/Delete/@item.Id" asp-antiforgery="true" class="d-inline" data-confirm="Bu adresi silmek istediğinize emin misiniz?"><button class="btn btn-danger-soft btn-icon" type="submit" title="Sil"><i class="bi bi-trash3"></i></button></form>
+                </div>
+            </div>
+        </div>
+    }
+</div>

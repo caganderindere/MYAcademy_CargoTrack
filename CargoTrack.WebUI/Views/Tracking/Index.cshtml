@@ -1,0 +1,44 @@
+﻿@{
+    ViewData["Title"] = "Kargo Takip";
+}
+<section class="page-hero">
+    <div class="container">
+        <span class="eyebrow" style="color:#FFB283">Kargo Takip</span>
+        <h1 class="mt-2">Gönderiniz nerede?</h1>
+        <p class="mb-0">Takip numaranızı girin; güncel durumu, son hareketi ve tahmini teslim tarihini görün.</p>
+    </div>
+</section>
+<div class="container pb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            @if (ViewBag.Error is string error)
+            {
+                <div class="alert-ct error mb-3"><i class="bi bi-exclamation-octagon-fill"></i><div>@error</div></div>
+            }
+            <div class="track-box">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <span class="kpi-ico ico-orange" style="width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.2rem"><i class="bi bi-upc-scan"></i></span>
+                        <div>
+                            <h2 class="mb-0">Takip Numarası ile Sorgula</h2>
+                            <div class="small text-muted-ct">Giriş yapmadan gönderinizin son durumunu görün</div>
+                        </div>
+                    </div>
+                    <form action="/Tracking/Result" method="get">
+                        <div class="track-input">
+                            <input name="code" value="@ViewBag.Code" placeholder="Takip numarası (örn. MYC-2026-849251)" required maxlength="30" />
+                            <button class="btn btn-brand btn-lg" type="submit"><i class="bi bi-search"></i> Sorgula</button>
+                        </div>
+                    </form>
+                    <div class="d-flex flex-wrap gap-3 mt-3 small text-muted-ct">
+                        <span><i class="bi bi-shield-check text-success me-1"></i>Kişisel veriler maskelenir</span>
+                        <span><i class="bi bi-qr-code me-1"></i>QR ile paylaşılabilir</span>
+                    </div>
+                </div>
+            <div class="row g-3 mt-2">
+                <div class="col-md-4"><div class="feature py-4"><span class="ico ico-blue"><i class="bi bi-receipt"></i></span><h3 class="fs-6">Takip numarası nerede?</h3><p class="small">Gönderi fişinizin üst kısmında MYC ile başlayan koddur.</p></div></div>
+                <div class="col-md-4"><div class="feature py-4"><span class="ico ico-orange"><i class="bi bi-key"></i></span><h3 class="fs-6">Teslimat kodu</h3><p class="small">Kurye yola çıktığında hesabınızda 6 haneli kod görünür.</p></div></div>
+                <div class="col-md-4"><div class="feature py-4"><span class="ico ico-green"><i class="bi bi-person-check"></i></span><h3 class="fs-6">Tüm detaylar</h3><p class="small">Giriş yaparak gönderinin tüm bilgilerine ulaşabilirsiniz.</p></div></div>
+            </div>
+        </div>
+    </div>
+</div>

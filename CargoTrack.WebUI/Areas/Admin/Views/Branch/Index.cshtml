@@ -1,54 +1,47 @@
-﻿
-@model List<ResultBranchDto>
+﻿@model PagedResultDto<ResultBranchDto>
 @{
-    ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Şubeler";
+    var filter = (BranchFilterDto)ViewBag.Filter;
 }
-
-<h3>Şubelerimiz</h3>
-
-<table class="table table-bordered table-hover">
-    @{
-        int count = 0;
-    }
-
-    <tr>
-        <th>#</th>
-        <th>Şube İsmi</th>
-        <th>Şehir</th>
-        <th>Transfer Merkezi</th>
-        <th>Telefon</th>
-        <th>Durum</th>
-        <th>İşlemler</th>
-    </tr>
-
-    @foreach (var item in Model)
+<div class="page-head">
+    <div>
+        <div class="crumbs">Ağ Yönetimi</div>
+        <h1>Şubeler</h1>
+        <p class="page-sub">Hizmet noktalarını, bağlı transfer merkezlerini ve iletişim bilgilerini yönetin.</p>
+    </div>
+    <div class="page-actions"><a class="btn btn-brand" href="/Admin/Branch/Create"><i class="bi bi-plus-lg"></i> Yeni Şube</a></div>
+</div>
+<div class="card-ct">
+    <form class="filter-bar" method="get">
+        <div class="filter-grow"><label>Ara</label><div class="input-icon"><i class="bi bi-search"></i><input name="Search" value="@filter.Search" class="form-control" placeholder="Şube adı veya adres" /></div></div>
+        <div class="filter-item"><label>Şehir</label><select name="CityId" class="form-select" asp-items="@(new SelectList((List<SelectListItem>)ViewBag.Cities, "Value", "Text", filter.CityId?.ToString()))"><option value="">Tüm şehirler</option></select></div>
+        <button class="btn btn-ink" type="submit"><i class="bi bi-funnel"></i> Filtrele</button>
+        <a class="btn btn-ghost" href="/Admin/Branch">Temizle</a>
+    </form>
+    @if (!Model.Items.Any())
     {
-        count++;
-        <tr>
-            <th>@count</th>
-            <td>@item.Name</td>
-            <td>@item.CityName</td>
-            <td>@(item.TransferCenterName ?? "-")</td>
-            <td>@(item.PhoneNumber ?? "-")</td>
-            <td>
-                @if (item.IsActive)
-                {
-                    <span class="badge bg-success">Aktif</span>
-                }
-                else
-                {
-                    <span class="badge bg-secondary">Pasif</span>
-                }
-            </td>
-            <td>
-                <a href="/Admin/Branch/Delete/@item.Id" onclick="return confirm('Silmek istediğinize emin misiniz?')" class="btn btn-danger">Sil</a>
-                <a href="/Admin/Branch/Update/@item.Id" class="btn btn-info">Güncelle</a>
-
-            </td>
-        </tr>
+        <partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { ["EmptyTitle"] = "Şube bulunamadı", ["EmptyIcon"] = "bi-shop" }' />
     }
-
-</table>
-
-<a href="/Admin/Branch/Create" class="btn btn-dark">Yeni Şube Oluştur</a>
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-ct">
+                <thead><tr><th>Şube</th><th>Şehir</th><th>Transfer Merkezi</th><th>Telefon</th><th>Durum</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td><div class="cell-title">@item.Name</div><div class="cell-sub">@(item.Address ?? "Adres girilmemiş")</div></td>
+                            <td>@item.CityName</td>
+                            <td>@(item.TransferCenterName ?? "-")</td>
+                            <td class="tabular">@(item.PhoneNumber ?? "-")</td>
+                            <td>@if (item.IsActive) { <span class="badge-ct tag-success">Aktif</span> } else { <span class="badge-ct tag-neutral">Pasif</span> }</td>
+                            <td><div class="table-actions"><a class="btn btn-soft btn-icon" href="/Admin/Branch/Update/@item.Id" title="Düzenle"><i class="bi bi-pencil"></i></a><form method="post" action="/Admin/Branch/Delete/@item.Id" asp-antiforgery="true" class="d-inline" data-confirm="@item.Name şubesini silmek istediğinize emin misiniz?"><button class="btn btn-danger-soft btn-icon" type="submit" title="Sil"><i class="bi bi-trash3"></i></button></form></div></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    <partial name="_Pagination" model="Model" />
+</div>

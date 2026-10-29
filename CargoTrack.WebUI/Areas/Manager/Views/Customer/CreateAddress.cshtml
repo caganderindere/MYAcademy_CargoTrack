@@ -1,0 +1,54 @@
+﻿@model CreateAddressDto
+@{
+    ViewData["Title"] = "Adres Ekle";
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs"><a href="/Manager/Customer/Addresses/@Model.CustomerId">Müşteriler</a> / Adres Ekle</div>
+        <h1>Adres Ekle</h1>
+        
+    </div>
+    <div class="page-actions"><a class="btn btn-ghost" href="/Manager/Customer/Addresses/@Model.CustomerId"><i class="bi bi-arrow-left"></i> Listeye Dön</a></div>
+</div>
+@{ var customer = (ResultCustomerDto)ViewBag.Customer; }
+<div class="alert-ct info mb-4"><i class="bi bi-person"></i><div><b>@customer.FullName</b> · @customer.PhoneNumber</div></div>
+<div class="row g-4">
+    <div class="col-xl-9">
+        <div class="card-ct">
+            <div class="card-head"><h2><i class="bi bi-geo-alt me-2 text-accent"></i>Adres Ekle</h2></div>
+            <form method="post" class="card-body-ct row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert-ct error col-12"></div>
+    <input type="hidden" asp-for="CustomerId" />
+    <div class="col-md-6">
+        <label asp-for="Title" class="form-label">Adres başlığı</label>
+        <input asp-for="Title" type="text" class="form-control" placeholder="Ev, İş..." />
+        <span asp-validation-for="Title" class="field-error"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="CityId" class="form-label">Şehir</label>
+        <select asp-for="CityId" class="form-select" asp-items="ViewBag.Cities">
+            <option value="">Şehir seçin</option>
+        </select>
+        <span asp-validation-for="CityId" class="field-error"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="District" class="form-label">İlçe</label>
+        <input asp-for="District" type="text" class="form-control" />
+        <span asp-validation-for="District" class="field-error"></span>
+    </div>
+    <div class="col-md-12">
+        <label asp-for="FullAddress" class="form-label">Açık adres</label>
+        <textarea asp-for="FullAddress" class="form-control" rows="3" placeholder="Mahalle, cadde, sokak, bina ve daire no"></textarea>
+        <span asp-validation-for="FullAddress" class="field-error"></span>
+    </div>
+                <div class="col-12 d-flex justify-content-end gap-2 pt-2 border-top mt-4">
+                    <a class="btn btn-ghost" href="/Manager/Customer/Addresses/@Model.CustomerId">Vazgeç</a>
+                    <button class="btn btn-brand" type="submit"><i class="bi bi-check2"></i> Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

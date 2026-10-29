@@ -1,0 +1,42 @@
+﻿@model AdminSummaryDto
+<div class="row g-3 mb-4">
+    <div class="col-12 col-xl-3">
+        <div class="card-ct kpi kpi-dark">
+            <div class="kpi-top"><span class="kpi-lbl">Toplam Gönderi</span><span class="kpi-ico" style="background:rgba(255,255,255,.1);color:#FF9A5C"><i class="bi bi-box-seam"></i></span></div>
+            <div class="kpi-val tabular">@Model.TotalCargos.ToString("N0")</div>
+            <div class="kpi-foot">Bugün <b class="text-white">+@Model.TodayCargos</b> yeni gönderi</div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-9">
+        <div class="row g-3">
+        <div class="col-6 col-xl-3">
+            <div class="card-ct kpi">
+                <div class="kpi-top"><span class="kpi-lbl">Aktif Kargo</span><span class="kpi-ico ico-blue"><i class="bi bi-lightning-charge"></i></span></div>
+                <div class="kpi-val tabular">@Model.ActiveCargos.ToString("N0")</div>
+                <div class="kpi-foot">Süreci devam eden gönderiler</div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card-ct kpi">
+                <div class="kpi-top"><span class="kpi-lbl">Geciken Kargo</span><span class="kpi-ico ico-red"><i class="bi bi-alarm"></i></span></div>
+                <div class="kpi-val tabular">@Model.DelayedCargos.ToString("N0")</div>
+                <div class="kpi-foot">Tahmini teslim tarihi geçmiş</div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card-ct kpi">
+                <div class="kpi-top"><span class="kpi-lbl">Teslimat Oranı</span><span class="kpi-ico ico-green"><i class="bi bi-check2-circle"></i></span></div>
+                <div class="kpi-val tabular">%@Model.DeliveryRate</div>
+                <div class="kpi-foot">@Model.DeliveredCargos teslim edildi</div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card-ct kpi">
+                <div class="kpi-top"><span class="kpi-lbl">Aktif Şube</span><span class="kpi-ico ico-orange"><i class="bi bi-shop"></i></span></div>
+                <div class="kpi-val tabular">@Model.ActiveBranches</div>
+                <div class="kpi-foot">@Model.ActiveEmployees personel · @Model.TotalCustomers müşteri</div>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>

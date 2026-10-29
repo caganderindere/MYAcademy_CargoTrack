@@ -9,7 +9,7 @@ namespace CargoTrack.Entity.Entities
         public bool IsActive { get; set; } = true;
         public Guid CityId { get; set; }
 
-public virtual City City { get; set; }
+        public virtual City City { get; set; }
         public virtual IList<Branch> Branches { get; set; }
         public virtual IList<Employee> Employees { get; set; }
         public virtual IList<CargoMovement> Movements { get; set; }

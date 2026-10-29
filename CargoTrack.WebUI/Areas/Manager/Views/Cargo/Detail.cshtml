@@ -1,0 +1,155 @@
+﻿@model CargoDetailDto
+@{
+    ViewData["Title"] = Model.TrackCode;
+    var isAdmin = User.IsInRole(Roles.Admin);
+    var outForDelivery = Model.CargoStatus == CargoStatus.OutForDelivery;
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs"><a href="/Manager/Cargo/Index">Kargolar</a> / Detay</div>
+        <h1 class="mono">@Model.TrackCode</h1>
+        <p class="page-sub d-flex flex-wrap gap-2 align-items-center">
+            <partial name="_StatusBadge" model="Model.CargoStatus" />
+            @if (Model.IsDelayed)
+            {
+                <span class="badge-ct badge-plain tag-delay"><i class="bi bi-alarm"></i> Gecikmede</span>
+            }
+            <span>Oluşturma: @Model.CreatedDate.ToShortDateTime()</span>
+            <span>·</span>
+            <span>@(Model.DeliveredDate is null ? "Tahmini teslim: " + Model.EstimatedDeliveryDate.ToShortDateTime() : "Teslim: " + Model.DeliveredDate.ToShortDateTime())</span>
+        </p>
+    </div>
+    <div class="page-actions">
+        <a class="btn btn-ghost" href="/Tracking/Result?code=@Model.TrackCode" target="_blank"><i class="bi bi-box-arrow-up-right"></i> Herkese Açık Takip</a>
+    </div>
+</div>
+<div class="card-ct mb-4"><div class="card-body-ct"><partial name="_StatusStepper" model="Model.CargoStatus" /></div></div>
+<div class="row g-4">
+    <div class="col-xl-8">
+        <partial name="_CargoInfo" model="Model" />
+        <div class="card-ct">
+            <div class="card-head"><h3><i class="bi bi-clock-history me-2"></i>Hareket Geçmişi</h3><span class="sub">@Model.Movements.Count kayıt · silinemez</span></div>
+            <div class="card-body-ct"><partial name="_CargoTimeline" model="Model.Movements" /></div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        @if (Model.CanManage && Model.NextStatuses.Any())
+        {
+            <div class="card-ct mb-4">
+                <div class="card-head"><h3><i class="bi bi-signpost-2 me-2 text-accent"></i>Yeni Hareket Girişi</h3></div>
+                <form method="post" asp-antiforgery="true" action="/Manager/Cargo/ChangeStatus" class="card-body-ct d-grid gap-3" data-status-form data-origin="@Model.OriginBranchId" data-destination="@Model.DestinationBranchId">
+                    <input type="hidden" name="CargoId" value="@Model.Id" />
+                    <input type="hidden" name="BranchId" value="" />
+                    <input type="hidden" name="EmployeeId" value="@Model.CurrentEmployeeId" />
+                    <div>
+                        <label class="form-label">Yeni durum</label>
+                        <select name="NewStatus" class="form-select">
+                            @foreach (var status in Model.NextStatuses)
+                            {
+                                <option value="@((int)status)">@status.GetDisplayName()</option>
+                            }
+                        </select>
+                        <div class="form-hint">Yalnızca kurallara uygun geçişler listelenir.</div>
+                    </div>
+                    <div data-center-wrap class="d-none">
+                        <label class="form-label">Transfer merkezi</label>
+                        <select name="TransferCenterId" class="form-select" asp-items="ViewBag.TransferCenters"><option value="">Seçin</option></select>
+                    </div>
+                    <div>
+                        <label class="form-label">Açıklama</label>
+                        <textarea name="Description" class="form-control" rows="2" maxlength="500" placeholder="Opsiyonel not"></textarea>
+                    </div>
+                    <button class="btn btn-brand" type="submit"><i class="bi bi-check2"></i> Hareketi Kaydet</button>
+                </form>
+            </div>
+        }
+        @if (Model.CanManage && outForDelivery)
+        {
+            <div class="card-ct mb-4" style="border-color:#C8EBD5">
+                <div class="card-head"><h3><i class="bi bi-patch-check me-2 text-success"></i>Kodla Teslim Et</h3></div>
+                <form method="post" asp-antiforgery="true" action="/Manager/Cargo/Deliver" class="card-body-ct d-grid gap-3">
+                    <input type="hidden" name="CargoId" value="@Model.Id" />
+                    @if (Model.CurrentEmployeeId is not null)
+                    {
+                        <input type="hidden" name="EmployeeId" value="@Model.CurrentEmployeeId" />
+                    }
+                    else
+                    {
+                        <div>
+                            <label class="form-label">Teslim eden kurye</label>
+                            <select name="EmployeeId" class="form-select" required>
+                                <option value="">Personel seçin</option>
+                                @foreach (var employee in Model.AssignableEmployees)
+                                {
+                                    <option value="@employee.Id">@employee.Name</option>
+                                }
+                            </select>
+                        </div>
+                    }
+                    <div>
+                        <label class="form-label">Teslimat kodu</label>
+                        <input name="DeliveryCode" class="form-control form-control-lg mono text-center fw-bold" inputmode="numeric" maxlength="6" pattern="\d{6}" placeholder="••••••" required />
+                        <div class="form-hint">Alıcının hesabında görünen 6 haneli kod.</div>
+                    </div>
+                    <div>
+                        <label class="form-label">Teslim alan kişi</label>
+                        <input name="ReceivedByName" class="form-control" maxlength="100" value="@Model.ReceiverFullName" required />
+                    </div>
+                    <div>
+                        <label class="form-label">Not</label>
+                        <input name="Note" class="form-control" maxlength="500" placeholder="Opsiyonel" />
+                    </div>
+                    <button class="btn btn-success-soft fw-bold" type="submit"><i class="bi bi-check2-circle"></i> Teslimatı Onayla</button>
+                </form>
+            </div>
+            <div class="card-ct mb-4" style="border-color:#F8CFCF">
+                <div class="card-head"><h3><i class="bi bi-exclamation-octagon me-2 text-danger"></i>Teslim Edilemedi</h3><span class="sub">@Model.FailedDeliveryAttempts / 3</span></div>
+                <form method="post" asp-antiforgery="true" action="/Manager/Cargo/ReportFailed" class="card-body-ct d-grid gap-3" data-confirm="Teslimat sorunu kaydedilecek. Onaylıyor musunuz?">
+                    <input type="hidden" name="CargoId" value="@Model.Id" />
+                    @if (Model.CurrentEmployeeId is not null)
+                    {
+                        <input type="hidden" name="EmployeeId" value="@Model.CurrentEmployeeId" />
+                    }
+                    else
+                    {
+                        <div>
+                            <label class="form-label">Kurye</label>
+                            <select name="EmployeeId" class="form-select" required>
+                                <option value="">Personel seçin</option>
+                                @foreach (var employee in Model.AssignableEmployees)
+                                {
+                                    <option value="@employee.Id">@employee.Name</option>
+                                }
+                            </select>
+                        </div>
+                    }
+                    <div>
+                        <label class="form-label">Neden</label>
+                        <select name="Reason" class="form-select" asp-items="Html.GetEnumSelectList<DeliveryExceptionReason>()"></select>
+                    </div>
+                    <div>
+                        <label class="form-label">Açıklama</label>
+                        <textarea name="Description" class="form-control" rows="2" maxlength="500" placeholder="'Diğer' seçildiyse zorunludur"></textarea>
+                    </div>
+                    <button class="btn btn-danger-soft fw-bold" type="submit"><i class="bi bi-flag"></i> Sorunu Kaydet</button>
+                    <div class="form-hint">3. başarısız denemede kargo otomatik olarak iade sürecine alınır.</div>
+                </form>
+            </div>
+        }
+        @if (!Model.CanManage || (!Model.NextStatuses.Any() && !outForDelivery))
+        {
+            <div class="alert-ct info mb-4"><i class="bi bi-info-circle"></i><div>@(Model.CargoStatus == CargoStatus.Delivered ? "Gönderi teslim edildi, süreç tamamlandı." : Model.CargoStatus == CargoStatus.ReturnedToSender ? "Gönderi göndericiye iade edildi." : "Bu gönderi için yapılabilecek bir işlem yok.")</div></div>
+        }
+        <div class="card-ct">
+            <div class="card-head"><h3>Barkod ve QR</h3></div>
+            <div class="card-body-ct text-center">
+                <div class="qr-holder mx-auto mb-3" data-qr="@(Context.Request.Scheme + "://" + Context.Request.Host + "/Tracking/Result?code=" + Model.TrackCode)"></div>
+                <div class="barcode-holder"><svg data-barcode="@Model.TrackCode"></svg></div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+}

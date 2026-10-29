@@ -1,0 +1,55 @@
+﻿@model CargoDetailDto
+@{
+    ViewData["Title"] = Model.TrackCode;
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs"><a href="/User/Cargo">Kargolarım</a> / Detay</div>
+        <h1 class="mono">@Model.TrackCode</h1>
+        <p class="page-sub d-flex flex-wrap gap-2 align-items-center">
+            <partial name="_StatusBadge" model="Model.CargoStatus" />
+            @if (Model.IsDelayed)
+            {
+                <span class="badge-ct badge-plain tag-delay"><i class="bi bi-alarm"></i> Gecikmede</span>
+            }
+            <span class="badge-ct badge-plain @(Model.IsReceiver ? "tag-warning" : "tag-info")">@(Model.IsReceiver ? "Size gelen" : "Sizin gönderiniz")</span>
+        </p>
+    </div>
+    <div class="page-actions"><a class="btn btn-ghost" href="/User/Cargo"><i class="bi bi-arrow-left"></i> Kargolarım</a></div>
+</div>
+@if (Model.DeliveryCode is not null)
+{
+    <div class="card-ct mb-4 p-4" style="background:linear-gradient(120deg,#FFF2EA,#fff);border-color:#FBD3BA">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+                <span class="eyebrow"><i class="bi bi-truck"></i> Kargonuz dağıtımda</span>
+                <h2 class="fs-4 mt-2 mb-1">Teslimat kodunuz</h2>
+                <p class="text-2 mb-0">Kurye teslim sırasında bu kodu soracaktır. Kodu yalnızca kargonuzu teslim alırken paylaşın.</p>
+            </div>
+            <div class="code-box">
+                @foreach (var c in Model.DeliveryCode)
+                {
+                    <span>@c</span>
+                }
+            </div>
+        </div>
+    </div>
+}
+<div class="card-ct mb-4">
+    <div class="card-body-ct">
+        <div class="d-flex flex-wrap justify-content-between gap-3 mb-4">
+            <div><div class="small text-muted-ct fw-bold text-uppercase">@(Model.DeliveredDate is null ? "Tahmini teslim" : "Teslim edildi")</div><div class="fs-5 fw-bold">@((Model.DeliveredDate ?? Model.EstimatedDeliveryDate).ToString("dd MMMM yyyy dddd, HH:mm"))</div></div>
+            <div class="text-md-end"><div class="small text-muted-ct fw-bold text-uppercase">Ücret</div><div class="fs-5 fw-bold text-accent">@Model.Price.ToMoney()</div></div>
+        </div>
+        <partial name="_StatusStepper" model="Model.CargoStatus" />
+    </div>
+</div>
+<div class="row g-4">
+    <div class="col-xl-7"><partial name="_CargoInfo" model="Model" /></div>
+    <div class="col-xl-5">
+        <div class="card-ct">
+            <div class="card-head"><h3><i class="bi bi-clock-history me-2"></i>Hareket Zaman Çizelgesi</h3></div>
+            <div class="card-body-ct"><partial name="_CargoTimeline" model="Model.Movements" /></div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,77 @@
+﻿@model CreateEmployeeDto
+@{
+    ViewData["Title"] = "Yeni Personel";
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs"><a href="/Admin/Employee">Personeller</a> / Yeni Personel</div>
+        <h1>Yeni Personel</h1>
+        
+    </div>
+    <div class="page-actions"><a class="btn btn-ghost" href="/Admin/Employee"><i class="bi bi-arrow-left"></i> Listeye Dön</a></div>
+</div>
+<div class="row g-4">
+    <div class="col-xl-8">
+        <div class="card-ct">
+            <div class="card-head"><h2><i class="bi bi-person-badge me-2 text-accent"></i>Yeni Personel</h2></div>
+            <form method="post" class="card-body-ct row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert-ct error col-12"></div>
+    <div class="col-md-6">
+        <label asp-for="FirstName" class="form-label">Ad</label>
+        <input asp-for="FirstName" type="text" class="form-control" />
+        <span asp-validation-for="FirstName" class="field-error"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="LastName" class="form-label">Soyad</label>
+        <input asp-for="LastName" type="text" class="form-control" />
+        <span asp-validation-for="LastName" class="field-error"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="PhoneNumber" class="form-label">Cep Telefonu</label>
+        <input asp-for="PhoneNumber" type="tel" class="form-control" placeholder="05XXXXXXXXX" />
+        <span asp-validation-for="PhoneNumber" class="field-error"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Position" class="form-label">Pozisyon</label>
+        <select asp-for="Position" class="form-select" asp-items="Html.GetEnumSelectList<EmployeePosition>()">
+            <option value="">Pozisyon seçin</option>
+        </select>
+        <span asp-validation-for="Position" class="field-error"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="BranchId" class="form-label">Şube</label>
+        <select asp-for="BranchId" class="form-select" asp-items="ViewBag.Branches">
+            <option value="">Şube seçin</option>
+        </select>
+        <span asp-validation-for="BranchId" class="field-error"></span>
+        <div class="form-hint">Kurye, şube personeli ve şube yöneticisi için zorunludur.</div>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="TransferCenterId" class="form-label">Transfer Merkezi</label>
+        <select asp-for="TransferCenterId" class="form-select" asp-items="ViewBag.TransferCenters">
+            <option value="">Transfer merkezi seçin</option>
+        </select>
+        <span asp-validation-for="TransferCenterId" class="field-error"></span>
+        <div class="form-hint">Yalnızca transfer merkezi personeli için seçilir.</div>
+    </div>
+                <div class="col-12 d-flex justify-content-end gap-2 pt-2 border-top mt-4">
+                    <a class="btn btn-ghost" href="/Admin/Employee">Vazgeç</a>
+                    <button class="btn btn-brand" type="submit"><i class="bi bi-check2"></i> Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card-ct p-4">
+            <h3 class="fs-6"><i class="bi bi-info-circle text-accent me-2"></i>Atama kuralları</h3>
+            <ul class="small text-2 mb-0 ps-3">
+                <li class="mb-2">Her şubede yalnızca <b>bir şube yöneticisi</b> bulunabilir.</li>
+                <li class="mb-2">Transfer merkezi personeli bir şubeye bağlanamaz.</li>
+                <li>Personel hesabı açıldığında <b>Manager</b> rolü atanır ve yalnızca kendi biriminin verilerini görür.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

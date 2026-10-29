@@ -1,8 +1,8 @@
-﻿using CargoTrack.DataAccess.Repositories.Cities;
+﻿using CargoTrack.Business.Exceptions;
+using CargoTrack.DataAccess.Repositories.Cities;
 using CargoTrack.DTO.DTOs.CityDtos;
 using CargoTrack.Entity.Entities;
 using Mapster;
-using System.ComponentModel.DataAnnotations;
 
 namespace CargoTrack.Business.Services.Cities
 {
@@ -16,10 +16,11 @@ namespace CargoTrack.Business.Services.Cities
 
         public async Task DeleteAsync(Guid id)
         {
-            var city = await _cityRepository.GetByIdAsync(id);
-            if (city is null)
+            var city = await GetExistingAsync(id);
+
+            if (city.Branches.Any() || city.TransferCenters.Any())
             {
-                throw new ValidationException("City Not Found");
+                throw new BusinessException("Bu şehre bağlı şube veya transfer merkezi bulunduğu için silinemez.");
             }
 
             await _cityRepository.DeleteAsync(city);
@@ -27,25 +28,26 @@ namespace CargoTrack.Business.Services.Cities
 
         public async Task<List<ResultCityDto>> GetAllAsync()
         {
-            var cities = await _cityRepository.GetAllAsync();
+            var cities = await _cityRepository.GetListAsync(x => true, q => q.OrderBy(x => x.Name));
             return cities.Adapt<List<ResultCityDto>>();
         }
 
         public async Task<UpdateCityDto> GetByIdAsync(Guid id)
         {
-            var city = await _cityRepository.GetByIdAsync(id);
-            if (city is null)
-            {
-                throw new ValidationException("City Not Found");
-            }
-
+            var city = await GetExistingAsync(id);
             return city.Adapt<UpdateCityDto>();
         }
 
         public async Task UpdateAsync(UpdateCityDto updateCityDto)
         {
-            var city = updateCityDto.Adapt<City>();
+            var city = await GetExistingAsync(updateCityDto.Id);
+            updateCityDto.Adapt(city);
             await _cityRepository.UpdateAsync(city);
+        }
+
+        private async Task<City> GetExistingAsync(Guid id)
+        {
+            return await _cityRepository.GetByIdAsync(id) ?? throw new BusinessException("Şehir bulunamadı.");
         }
     }
 }

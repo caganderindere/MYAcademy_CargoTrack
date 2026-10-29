@@ -1,0 +1,55 @@
+﻿@model PagedResultDto<ResultCustomerDto>
+@{
+    ViewData["Title"] = "Müşteriler";
+    var isAdmin = User.IsInRole(Roles.Admin);
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs">Müşteri</div>
+        <h1>Müşteriler</h1>
+        <p class="page-sub">Gönderici ve alıcı kayıtları. Telefon numarası her müşteri için benzersizdir.</p>
+    </div>
+    <div class="page-actions"><a class="btn btn-brand" href="/Manager/Customer/Create"><i class="bi bi-person-plus"></i> Yeni Müşteri</a></div>
+</div>
+<div class="card-ct">
+    <form class="filter-bar" method="get">
+        <div class="filter-grow"><label>Ara</label><div class="input-icon"><i class="bi bi-search"></i><input name="Search" value="@ViewBag.Search" class="form-control" placeholder="Ad, soyad, telefon veya e-posta" /></div></div>
+        <button class="btn btn-ink" type="submit"><i class="bi bi-funnel"></i> Ara</button>
+        <a class="btn btn-ghost" href="/Manager/Customer">Temizle</a>
+    </form>
+    @if (!Model.Items.Any())
+    {
+        <partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { ["EmptyTitle"] = "Müşteri bulunamadı", ["EmptyIcon"] = "bi-people" }' />
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-ct">
+                <thead><tr><th>Müşteri</th><th>Telefon</th><th>E-posta</th><th>Hesap</th><th>Kayıt</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td><div class="d-flex align-items-center gap-3"><span class="party"><span class="av ico-orange" style="width:38px;height:38px;border-radius:12px">@item.FullName.Initials()</span></span><span class="cell-title">@item.FullName</span></div></td>
+                            <td class="tabular">@item.PhoneNumber</td>
+                            <td>@(item.Email ?? "-")</td>
+                            <td>@if (item.HasAccount) { <span class="badge-ct tag-success">Online</span> } else { <span class="badge-ct tag-neutral">Şube kaydı</span> }</td>
+                            <td class="tabular small">@item.CreatedDate.ToString("dd.MM.yyyy")</td>
+                            <td>
+                                <div class="table-actions">
+                                    <a class="btn btn-soft btn-sm" href="/Manager/Customer/Addresses/@item.Id"><i class="bi bi-geo-alt"></i> Adresler</a>
+                                    <a class="btn btn-soft btn-icon" href="/Manager/Customer/Update/@item.Id" title="Düzenle"><i class="bi bi-pencil"></i></a>
+                                    @if (isAdmin)
+                                    {
+                                        <form method="post" action="/Manager/Customer/Delete/@item.Id" asp-antiforgery="true" class="d-inline" data-confirm="@item.FullName kaydını silmek istediğinize emin misiniz?"><button class="btn btn-danger-soft btn-icon" type="submit" title="Sil"><i class="bi bi-trash3"></i></button></form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    <partial name="_Pagination" model="Model" />
+</div>

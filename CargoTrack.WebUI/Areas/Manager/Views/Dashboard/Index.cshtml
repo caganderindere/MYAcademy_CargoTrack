@@ -1,17 +1,32 @@
-﻿
-@{
-    Layout = null;
+﻿@{
+    ViewData["Title"] = "Şube Paneli";
 }
-
-<!DOCTYPE html>
-
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Index</title>
-</head>
-<body>
-
-    <h1>Manager Rolüne Sahip Kullanıcı Dashboard</h1>
-</body>
-</html>
+@await Component.InvokeAsync("ManagerSummary")
+<div class="row g-4 mb-4">
+    <div class="col-xl-8">
+        <div class="card-ct h-100">
+            <div class="card-head"><div><h2>Son 7 Gün</h2><div class="sub">Biriminize bağlı gönderi hacmi</div></div></div>
+            <div class="card-body-ct">@await Component.InvokeAsync("DailyTrafficChart", new { days = 7 })</div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card-ct h-100">
+            <div class="card-head"><div><h2>Durum Dağılımı</h2><div class="sub">Biriminizin gönderileri</div></div></div>
+            <div class="card-body-ct">@await Component.InvokeAsync("StatusDistributionChart")</div>
+        </div>
+    </div>
+</div>
+<div class="row g-4">
+    <div class="col-xl-8">
+        <div class="card-ct h-100">
+            <div class="card-head"><h2>Son Gönderiler</h2><a class="btn btn-soft btn-sm" href="/Manager/Cargo/Index">Tümü</a></div>
+            @await Component.InvokeAsync("RecentCargos", new { take = 7 })
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card-ct h-100">
+            <div class="card-head"><h2>Son Hareketler</h2><a class="btn btn-soft btn-sm" href="/Manager/Operation">Günlük</a></div>
+            <div class="card-body-ct py-2">@await Component.InvokeAsync("RecentMovements", new { take = 8 })</div>
+        </div>
+    </div>
+</div>

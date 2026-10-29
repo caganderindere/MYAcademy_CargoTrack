@@ -12,7 +12,7 @@ namespace CargoTrack.Entity.Entities
 
         public Guid? TransferCenterId { get; set; }
 
-public virtual City City { get; set; }
+        public virtual City City { get; set; }
         public virtual TransferCenter? TransferCenter { get; set; }
         public virtual IList<Employee> Employees { get; set; }
         public virtual IList<Cargo> OriginCargos { get; set; }

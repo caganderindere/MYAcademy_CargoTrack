@@ -1,0 +1,67 @@
+﻿@model PagedResultDto<ResultAuditLogDto>
+@{
+    ViewData["Title"] = "Audit Log";
+    var filter = (AuditLogFilterDto)ViewBag.Filter;
+    var entityNames = (List<string>)ViewBag.EntityNames;
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs">Sistem</div>
+        <h1>Audit Log</h1>
+        <p class="page-sub">Sistemdeki tüm ekleme, güncelleme, silme ve durum değişikliklerinin eski / yeni değerleriyle kaydı.</p>
+    </div>
+    <div class="page-actions"></div>
+</div>
+<div class="card-ct">
+    <form class="filter-bar" method="get">
+        <div class="filter-grow"><label>Ara</label><div class="input-icon"><i class="bi bi-search"></i><input name="Search" value="@filter.Search" class="form-control" placeholder="Kayıt ID, kullanıcı veya açıklama" /></div></div>
+        <div class="filter-item"><label>Entity</label><select name="EntityName" class="form-select"><option value="">Tümü</option>@foreach (var name in entityNames) { <option value="@name" selected="@(filter.EntityName == name)">@name</option> }</select></div>
+        <div class="filter-item"><label>İşlem</label><select name="ActionType" class="form-select" asp-items="@SelectListExtensions.EnumSelect(filter.ActionType)"><option value="">Tümü</option></select></div>
+        <div class="filter-item"><label>Başlangıç</label><input type="date" name="DateFrom" value="@filter.DateFrom?.ToString("yyyy-MM-dd")" class="form-control" /></div>
+        <div class="filter-item"><label>Bitiş</label><input type="date" name="DateTo" value="@filter.DateTo?.ToString("yyyy-MM-dd")" class="form-control" /></div>
+        <button class="btn btn-ink" type="submit"><i class="bi bi-funnel"></i> Filtrele</button>
+        <a class="btn btn-ghost" href="/Admin/AuditLog">Temizle</a>
+    </form>
+    @if (!Model.Items.Any())
+    {
+        <partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { ["EmptyTitle"] = "Kayıt bulunamadı", ["EmptyIcon"] = "bi-journal-text" }' />
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-ct">
+                <thead><tr><th>Tarih</th><th>Kullanıcı</th><th>İşlem</th><th>Entity</th><th>Açıklama</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td class="tabular text-nowrap">@item.CreatedDate.ToString("dd.MM.yyyy HH:mm:ss")</td>
+                            <td><span class="fw-semibold">@(item.UserName ?? "Sistem")</span></td>
+                            <td><span class="badge-ct badge-plain @item.ActionType.BadgeClass()">@item.ActionType.GetDisplayName()</span></td>
+                            <td><div class="cell-title">@item.EntityName</div><div class="cell-sub mono">@item.EntityId</div></td>
+                            <td class="text-2 small" style="max-width:320px">@item.Description</td>
+                            <td class="text-end">
+                                @if (item.OldValues is not null || item.NewValues is not null)
+                                {
+                                    <button class="btn btn-soft btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#log-@item.Id"><i class="bi bi-code-slash"></i> Değerler</button>
+                                }
+                            </td>
+                        </tr>
+                        @if (item.OldValues is not null || item.NewValues is not null)
+                        {
+                            <tr class="collapse" id="log-@item.Id">
+                                <td colspan="6" style="background:#F8FAFD">
+                                    <div class="row g-3">
+                                        <div class="col-md-6"><div class="small fw-bold text-muted-ct mb-1">ESKİ DEĞER</div><pre class="json-view">@(item.OldValues ?? "-")</pre></div>
+                                        <div class="col-md-6"><div class="small fw-bold text-muted-ct mb-1">YENİ DEĞER</div><pre class="json-view">@(item.NewValues ?? "-")</pre></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    <partial name="_Pagination" model="Model" />
+</div>

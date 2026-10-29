@@ -1,85 +1,100 @@
 ﻿using CargoTrack.Business;
 using CargoTrack.Business.Services.Abouts;
+using CargoTrack.Business.Services.Addresses;
+using CargoTrack.Business.Services.AuditLogs;
+using CargoTrack.Business.Services.Auth;
 using CargoTrack.Business.Services.Branches;
+using CargoTrack.Business.Services.CargoPrices;
+using CargoTrack.Business.Services.CargoPricing;
+using CargoTrack.Business.Services.Cargos;
 using CargoTrack.Business.Services.Cities;
+using CargoTrack.Business.Services.CurrentUser;
+using CargoTrack.Business.Services.Customers;
+using CargoTrack.Business.Services.Dashboards;
+using CargoTrack.Business.Services.Employees;
+using CargoTrack.Business.Services.Reports;
+using CargoTrack.Business.Services.TransferCenters;
+using CargoTrack.Business.Services.Users;
+using CargoTrack.DataAccess.Auditing;
 using CargoTrack.DataAccess.Context;
 using CargoTrack.DataAccess.Repositories.Abouts;
+using CargoTrack.DataAccess.Repositories.Addresses;
+using CargoTrack.DataAccess.Repositories.AuditLogs;
 using CargoTrack.DataAccess.Repositories.Branches;
+using CargoTrack.DataAccess.Repositories.Cargo;
+using CargoTrack.DataAccess.Repositories.CargoMovements;
+using CargoTrack.DataAccess.Repositories.CargoPrices;
 using CargoTrack.DataAccess.Repositories.Cities;
+using CargoTrack.DataAccess.Repositories.Customers;
+using CargoTrack.DataAccess.Repositories.Employees;
+using CargoTrack.DataAccess.Repositories.Reports;
+using CargoTrack.DataAccess.Repositories.TransferCenters;
+using CargoTrack.DataAccess.Repositories.Users;
 using CargoTrack.Entity.Entities;
 using CargoTrack.Entity.Entities.Enums;
+using CargoTrack.WebUI.Consts;
+using CargoTrack.WebUI.Filters;
+using CargoTrack.WebUI.Seed;
+using CargoTrack.WebUI.Services;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Microsoft.EntityFrameworkCore;
-using CargoTrack.DataAccess.Repositories.Cargo;
-using CargoTrack.Business.Services.Cargos;
-using CargoTrack.DataAccess.Repositories.CargoPrices;
-using CargoTrack.Business.Services.CargoPricing;
-using CargoTrack.DataAccess.Repositories.TransferCenters;
-using CargoTrack.Business.Services.TransferCenters;
-using CargoTrack.DataAccess.Repositories.Employees;
-using CargoTrack.Business.Services.Employees;
-using CargoTrack.DataAccess.Repositories.Customers;
-using CargoTrack.Business.Services.Customers;
-using CargoTrack.DataAccess.Repositories.Addresses;
-using CargoTrack.Business.Services.Addresses;
-using CargoTrack.Business.Services.CargoPrices;
-using CargoTrack.WebUI.Consts;
 using Microsoft.AspNetCore.Identity;
-using CargoTrack.Business.Services.Auth;
-using CargoTrack.Business.Services.CurrentUser;
-using CargoTrack.WebUI.Services;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var culture = (CultureInfo)CultureInfo.GetCultureInfo("tr-TR").Clone();
+culture.NumberFormat.NumberDecimalSeparator = ".";
+culture.NumberFormat.NumberGroupSeparator = ",";
+CultureInfo.DefaultThreadCurrentCulture = culture;
+CultureInfo.DefaultThreadCurrentUICulture = culture;
 
 builder.Services.AddFluentValidationAutoValidation()
                 .AddFluentValidationClientsideAdapters()
                 .AddValidatorsFromAssembly(typeof(BusinessAssembly).Assembly);
 
-builder.Services.AddScoped<IAboutRepository, AboutRepository>();
-builder.Services.AddScoped<IBranchRepository, BranchRepository>();
-builder.Services.AddScoped<ICityRepository, CityRepository>();
-
-builder.Services.AddScoped<ICargoRepository, CargoRepository>();
-
-builder.Services.AddScoped<ICargoService, CargoService>();
-
-builder.Services.AddScoped<IEmployeeService, EmployeeService>();
-
-builder.Services.AddScoped<ICargoPriceRepository, CargoPriceRepository>();
-
-builder.Services.AddScoped<ICargoPricingService, CargoPricingService>();
-
-builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-
-builder.Services.AddScoped<ITransferCenterService, TransferCenterService>();
-
-builder.Services.AddScoped<ITransferCenterRepository, TransferCenterRepository>();
-
-builder.Services.AddScoped<IAuthService, AuthService>();
-
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IAuditUserProvider, AuditUserProvider>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IUserContextService, UserContextService>();
 
-builder.Services.AddScoped<IAboutService, AboutService>();
-builder.Services.AddScoped<IBranchService, BranchService>();
-builder.Services.AddScoped<ICityService, CityService>();
-
-builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
-builder.Services.AddScoped<ICustomerService, CustomerService>();
-
+builder.Services.AddScoped<IAboutRepository, AboutRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
-builder.Services.AddScoped<IAddressService, AddressService>();
+builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+builder.Services.AddScoped<IBranchRepository, BranchRepository>();
+builder.Services.AddScoped<ICargoRepository, CargoRepository>();
+builder.Services.AddScoped<ICargoMovementRepository, CargoMovementRepository>();
+builder.Services.AddScoped<ICargoPriceRepository, CargoPriceRepository>();
+builder.Services.AddScoped<ICityRepository, CityRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
+builder.Services.AddScoped<ITransferCenterRepository, TransferCenterRepository>();
+builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
 
+builder.Services.AddScoped<IAboutService, AboutService>();
+builder.Services.AddScoped<IAddressService, AddressService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IBranchService, BranchService>();
+builder.Services.AddScoped<ICargoService, CargoService>();
 builder.Services.AddScoped<ICargoPriceService, CargoPriceService>();
+builder.Services.AddScoped<ICargoPricingService, CargoPricingService>();
+builder.Services.AddScoped<ICityService, CityService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<ITransferCenterService, TransferCenterService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-
     options.UseLazyLoadingProxies();
-
 });
 
 builder.Services.AddIdentity<AppUser, AppRole>().AddEntityFrameworkStores<AppDbContext>();
@@ -88,19 +103,32 @@ builder.Services.ConfigureApplicationCookie(config =>
 {
     config.LoginPath = "/Login/Index";
     config.LogoutPath = "/Login/Logout";
-    config.AccessDeniedPath = "/ErrorPages/AccessDenied";
+    config.AccessDeniedPath = "/Error/AccessDenied";
     config.Cookie.Name = "CargoTrackCookie";
 });
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<BusinessExceptionFilter>();
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+});
 
 var app = builder.Build();
 
+app.UseExceptionHandler("/Error");
+app.UseStatusCodePagesWithReExecute("/Error/Status/{0}");
+
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(culture),
+    SupportedCultures = new List<CultureInfo> { culture },
+    SupportedUICultures = new List<CultureInfo> { culture }
+});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -110,9 +138,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
-            name: "areas",
-            pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
-          );
+    name: "areas",
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
@@ -223,6 +250,8 @@ using (var scope = app.Services.CreateScope())
         context.SaveChanges();
     }
 
+
+    await DemoDataSeeder.SeedAsync(scope.ServiceProvider, builder.Configuration);
 }
 
 app.Run();

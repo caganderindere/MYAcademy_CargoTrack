@@ -1,0 +1,9 @@
+﻿@model List<MenuSection>
+@foreach (var group in Model)
+{
+    <div class="sb-section">@group.Title</div>
+    @foreach (var item in group.Items)
+    {
+        <a class="sb-link @(item.IsActive ? "active" : "")" href="@item.Url"><i class="bi @item.Icon"></i><span>@item.Text</span></a>
+    }
+}

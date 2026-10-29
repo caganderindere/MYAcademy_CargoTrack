@@ -1,0 +1,54 @@
+﻿@model PagedResultDto<ResultCargoMovementDto>
+@{
+    ViewData["Title"] = "Günlük Operasyon";
+    var filter = (MovementFilterDto)ViewBag.Filter;
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs">Şube Paneli</div>
+        <h1>Günlük Operasyon</h1>
+        <p class="page-sub">@filter.Date!.Value.ToString("dd MMMM yyyy, dddd") tarihinde biriminizde gerçekleşen tüm hareketler.</p>
+    </div>
+    <div class="page-actions"></div>
+</div>
+<div class="card-ct">
+    <form class="filter-bar" method="get">
+        <div class="filter-item"><label>Tarih</label><input type="date" name="Date" value="@filter.Date?.ToString("yyyy-MM-dd")" class="form-control" /></div>
+        <div class="filter-grow"><label>Takip No</label><div class="input-icon"><i class="bi bi-search"></i><input name="Search" value="@filter.Search" class="form-control" placeholder="MYC-..." /></div></div>
+        <button class="btn btn-ink" type="submit"><i class="bi bi-funnel"></i> Göster</button>
+        <a class="btn btn-ghost" href="/Manager/Operation?Date=@DateTime.Today.AddDays(-1).ToString("yyyy-MM-dd")">Dün</a>
+        <a class="btn btn-ghost" href="/Manager/Operation">Bugün</a>
+    </form>
+    @if (!Model.Items.Any())
+    {
+        <partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { ["EmptyTitle"] = "Bu tarihte hareket yok", ["EmptyIcon"] = "bi-calendar2-x" }' />
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-ct">
+                <thead><tr><th>Saat</th><th>Takip No</th><th>Geçiş</th><th>Konum</th><th>Personel</th><th>Açıklama</th></tr></thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td class="tabular fw-bold">@item.MovementDate.ToString("HH:mm")</td>
+                            <td><a class="mono fw-bold" href="/Manager/Cargo/Detail/@item.CargoId">@item.CargoTrackCode</a></td>
+                            <td>
+                                @if (item.FromStatus is not null)
+                                {
+                                    <span class="small text-muted-ct">@item.FromStatus.Value.GetDisplayName() <i class="bi bi-arrow-right"></i></span>
+                                }
+                                <partial name="_StatusBadge" model="item.ToStatus" />
+                            </td>
+                            <td>@(item.LocationName ?? "-")</td>
+                            <td>@(item.EmployeeFullName ?? "-")</td>
+                            <td class="small text-2">@(item.Description ?? "")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    <partial name="_Pagination" model="Model" />
+</div>

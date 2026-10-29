@@ -1,0 +1,52 @@
+﻿@model CreateEmployeeAccountDto
+@{
+    ViewData["Title"] = "Personel Hesabı Aç";
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs"><a href="/Admin/Employee">Personeller</a> / Personel Hesabı Aç</div>
+        <h1>Personel Hesabı Aç</h1>
+        <p class="page-sub">Personelin panele giriş yapabilmesi için kullanıcı hesabı oluşturun.</p>
+    </div>
+    <div class="page-actions"><a class="btn btn-ghost" href="/Admin/Employee"><i class="bi bi-arrow-left"></i> Listeye Dön</a></div>
+</div>
+@{ var employee = (ResultEmployeeDto)ViewBag.Employee; }
+<div class="alert-ct info mb-4"><i class="bi bi-person-badge"></i><div><b>@employee.FullName</b> · @employee.Position.GetDisplayName() · @(employee.UnitName ?? "-")</div></div>
+<div class="row g-4">
+    <div class="col-xl-9">
+        <div class="card-ct">
+            <div class="card-head"><h2><i class="bi bi-key me-2 text-accent"></i>Personel Hesabı Aç</h2></div>
+            <form method="post" class="card-body-ct row g-3">
+                <div asp-validation-summary="ModelOnly" class="alert-ct error col-12"></div>
+    <input type="hidden" asp-for="EmployeeId" />
+    <div class="col-md-6">
+        <label asp-for="UserName" class="form-label">Kullanıcı Adı</label>
+        <input asp-for="UserName" type="text" class="form-control" placeholder="ad.soyad" />
+        <span asp-validation-for="UserName" class="field-error"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Email" class="form-label">E-posta</label>
+        <input asp-for="Email" type="email" class="form-control" />
+        <span asp-validation-for="Email" class="field-error"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Password" class="form-label">Geçici Şifre</label>
+        <input asp-for="Password" type="password" class="form-control" />
+        <span asp-validation-for="Password" class="field-error"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="ConfirmPassword" class="form-label">Şifre Tekrarı</label>
+        <input asp-for="ConfirmPassword" type="password" class="form-control" />
+        <span asp-validation-for="ConfirmPassword" class="field-error"></span>
+    </div>
+                <div class="col-12 d-flex justify-content-end gap-2 pt-2 border-top mt-4">
+                    <a class="btn btn-ghost" href="/Admin/Employee">Vazgeç</a>
+                    <button class="btn btn-brand" type="submit"><i class="bi bi-check2"></i> Hesabı Oluştur</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,61 @@
+﻿@model PagedResultDto<ResultEmployeeDto>
+@{
+    ViewData["Title"] = "Personeller";
+    var filter = (EmployeeFilterDto)ViewBag.Filter;
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs">Ağ Yönetimi</div>
+        <h1>Personeller</h1>
+        <p class="page-sub">Şube ve transfer merkezi kadrolarını, kullanıcı hesaplarını yönetin.</p>
+    </div>
+    <div class="page-actions"><a class="btn btn-brand" href="/Admin/Employee/Create"><i class="bi bi-person-plus"></i> Yeni Personel</a></div>
+</div>
+<div class="card-ct">
+    <form class="filter-bar" method="get">
+        <div class="filter-grow"><label>Ara</label><div class="input-icon"><i class="bi bi-search"></i><input name="Search" value="@filter.Search" class="form-control" placeholder="Ad, soyad veya telefon" /></div></div>
+        <div class="filter-item"><label>Pozisyon</label><select name="Position" class="form-select" asp-items="@SelectListExtensions.EnumSelect(filter.Position)"><option value="">Tümü</option></select></div>
+        <div class="filter-item"><label>Şube</label><select name="BranchId" class="form-select" asp-items="@(new SelectList((List<SelectListItem>)ViewBag.Branches, "Value", "Text", filter.BranchId?.ToString()))"><option value="">Tüm şubeler</option></select></div>
+        <button class="btn btn-ink" type="submit"><i class="bi bi-funnel"></i> Filtrele</button>
+        <a class="btn btn-ghost" href="/Admin/Employee">Temizle</a>
+    </form>
+    @if (!Model.Items.Any())
+    {
+        <partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { ["EmptyTitle"] = "Personel bulunamadı", ["EmptyIcon"] = "bi-person-badge" }' />
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-ct">
+                <thead><tr><th>Personel</th><th>Pozisyon</th><th>Birim</th><th>Kullanıcı Hesabı</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="party"><span class="av ico-blue" style="width:38px;height:38px;border-radius:12px">@item.FullName.Initials()</span></span>
+                                    <div><div class="cell-title">@item.FullName</div><div class="cell-sub">@item.PhoneNumber</div></div>
+                                </div>
+                            </td>
+                            <td><span class="badge-ct badge-plain @(item.Position == EmployeePosition.BranchManager ? "tag-warning" : "tag-info")">@item.Position.GetDisplayName()</span></td>
+                            <td>@(item.UnitName ?? "-")</td>
+                            <td>
+                                @if (item.HasAccount)
+                                {
+                                    <span class="badge-ct tag-success">Hesap aktif</span>
+                                }
+                                else
+                                {
+                                    <a class="btn btn-success-soft btn-sm" href="/Admin/Employee/CreateAccount/@item.Id"><i class="bi bi-key"></i> Hesap Aç</a>
+                                }
+                            </td>
+                            <td><div class="table-actions"><a class="btn btn-soft btn-icon" href="/Admin/Employee/Update/@item.Id" title="Düzenle"><i class="bi bi-pencil"></i></a><form method="post" action="/Admin/Employee/Delete/@item.Id" asp-antiforgery="true" class="d-inline" data-confirm="@item.FullName kaydı silinecek ve hesabı kilitlenecek. Emin misiniz?"><button class="btn btn-danger-soft btn-icon" type="submit" title="Sil"><i class="bi bi-trash3"></i></button></form></div></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    <partial name="_Pagination" model="Model" />
+</div>

@@ -1,8 +1,131 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Akıllı Kargo ve Lojistik";
 }
+<section class="hero">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="eyebrow"><i class="bi bi-stars"></i> Türkiye'nin izlenebilir kargo ağı</span>
+                <h1 class="mt-4 mb-4">Her gönderi,<br /><em>her an</em> kontrol altında.</h1>
+                <p class="lead mb-4">Şubeden transfer merkezine, kuryeden alıcıya kadar her hareket kayıt altında. Dinamik fiyatlandırma, doğrulama kodlu teslimat ve SLA takibiyle kurumsal lojistik.</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-brand btn-lg" href="/Register/Signup"><i class="bi bi-person-plus"></i> Ücretsiz Hesap Aç</a>
+                    <a class="btn btn-lg" style="background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.18)" href="/Home/Branches"><i class="bi bi-geo-alt"></i> En Yakın Şube</a>
+                </div>
+                <div class="hero-points">
+                    <span><i class="bi bi-check-circle-fill"></i>6 haneli teslimat kodu</span>
+                    <span><i class="bi bi-check-circle-fill"></i>Gerçek zamanlı hareket kaydı</span>
+                    <span><i class="bi bi-check-circle-fill"></i>Aynı gün teslimat</span>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="track-box">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <span class="kpi-ico ico-orange" style="width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.2rem"><i class="bi bi-upc-scan"></i></span>
+                        <div>
+                            <h2 class="mb-0">Kargom Nerede?</h2>
+                            <div class="small text-muted-ct">Giriş yapmadan gönderinizin son durumunu görün</div>
+                        </div>
+                    </div>
+                    <form action="/Tracking/Result" method="get">
+                        <div class="track-input">
+                            <input name="code" value="@ViewBag.Code" placeholder="Takip numarası (örn. MYC-2026-849251)" required maxlength="30" />
+                            <button class="btn btn-brand btn-lg" type="submit"><i class="bi bi-search"></i> Sorgula</button>
+                        </div>
+                    </form>
+                    <div class="d-flex flex-wrap gap-3 mt-3 small text-muted-ct">
+                        <span><i class="bi bi-shield-check text-success me-1"></i>Kişisel veriler maskelenir</span>
+                        <span><i class="bi bi-qr-code me-1"></i>QR ile paylaşılabilir</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@await Component.InvokeAsync("PublicStats")
+
+<section class="section" id="hizmetler">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="eyebrow">Hizmetlerimiz</span>
+            <h2 class="section-title mt-2">İhtiyacınıza göre esnek gönderi seçenekleri</h2>
+            <p class="section-lead mx-auto">Ücretler ağırlık, desi, mesafe bölgesi, teslimat tipi ve ek hizmetlere göre anında hesaplanır.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4"><div class="feature"><span class="ico ico-blue"><i class="bi bi-box-seam"></i></span><h3>Standart Teslimat</h3><p>3 iş günü içinde Türkiye genelinde güvenli teslimat. Bireysel ve kurumsal gönderiler için ekonomik çözüm.</p></div></div>
+            <div class="col-md-6 col-lg-4"><div class="feature"><span class="ico ico-orange"><i class="bi bi-lightning-charge"></i></span><h3>Hızlı Kargo</h3><p>Ertesi iş günü teslimat. Acil evrak ve ticari gönderiler için öncelikli transfer.</p></div></div>
+            <div class="col-md-6 col-lg-4"><div class="feature"><span class="ico ico-teal"><i class="bi bi-clock-history"></i></span><h3>Aynı Gün Teslimat</h3><p>Şehir içi gönderilerinizi aynı gün saat 21:00'e kadar alıcısına ulaştırıyoruz.</p></div></div>
+            <div class="col-md-6 col-lg-4"><div class="feature"><span class="ico ico-violet"><i class="bi bi-shield-check"></i></span><h3>Sigortalı Gönderi</h3><p>Değerli ve kırılabilir ürünleriniz yolculuk boyunca güvence altında.</p></div></div>
+            <div class="col-md-6 col-lg-4"><div class="feature"><span class="ico ico-green"><i class="bi bi-cash-coin"></i></span><h3>Kapıda Ödeme</h3><p>E-ticaret satıcıları için tahsilatlı teslimat. Ödeme teslim anında alınır.</p></div></div>
+            <div class="col-md-6 col-lg-4"><div class="feature"><span class="ico ico-red"><i class="bi bi-calendar-week"></i></span><h3>Hafta Sonu Teslimat</h3><p>Cumartesi ve pazar günleri de dağıtım. Alıcınız evdeyken kapısında.</p></div></div>
+        </div>
+    </div>
+</section>
+
+<section class="section" style="background:#fff;border-top:1px solid var(--ct-line);border-bottom:1px solid var(--ct-line)">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6">
+                <span class="eyebrow">Nasıl çalışır?</span>
+                <h2 class="section-title mt-2 mb-4">Kabulden teslimata şeffaf operasyon</h2>
+                <div class="steps-flow">
+                    <div class="step"><h4>Şubede kabul ve anında fiyat</h4><p>Gönderiniz ölçülür, desi hesaplanır ve tarife anında belirlenir. Benzersiz takip numaranız oluşturulur.</p></div>
+                    <div class="step"><h4>Transfer merkezleri üzerinden taşıma</h4><p>Gönderi her noktada okutulur; hangi şubeden ve merkezden geçtiği hareket kayıtlarında görünür.</p></div>
+                    <div class="step"><h4>Dağıtım ve kodlu teslimat</h4><p>Kurye yola çıktığında alıcıya 6 haneli kod verilir. Kod doğrulanmadan teslimat tamamlanamaz.</p></div>
+                    <div class="step"><h4>Sorun olursa kontrollü iade</h4><p>Adres hatası veya alıcının bulunamaması kayıt altına alınır; 3 başarısız denemede iade süreci başlar.</p></div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="mock-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div><div class="small text-muted-ct fw-bold">TAKİP NO</div><div class="mono fw-bold fs-5">MYC-2026-849251</div></div>
+                        <span class="badge-ct st-out">Dağıtıma Çıktı</span>
+                    </div>
+                    <partial name="_StatusStepper" model="CargoStatus.OutForDelivery" />
+                    <ul class="timeline mt-4">
+                        <li><span class="ti-dot"><i class="bi bi-truck"></i></span><div class="ti-title">Dağıtıma Çıktı</div><div class="ti-meta"><span>Bugün 09:12</span><span>Kadıköy Şubesi</span></div></li>
+                        <li><span class="ti-dot"><i class="bi bi-geo-alt"></i></span><div class="ti-title">Varış Şubesinde</div><div class="ti-meta"><span>Bugün 07:40</span><span>Kadıköy Şubesi</span></div></li>
+                        <li><span class="ti-dot"><i class="bi bi-diagram-3"></i></span><div class="ti-title">Transfer Merkezinde</div><div class="ti-meta"><span>Dün 22:05</span><span>Marmara Aktarma Merkezi</span></div></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="kurumsal">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-5">
+                <span class="eyebrow">Kurumsal</span>
+                <h2 class="section-title mt-2">Güven, hız ve izlenebilirlik üzerine kurulu bir ağ</h2>
+                <p class="section-lead">CargoTrack; şubeleri, transfer merkezlerini ve saha ekiplerini tek bir operasyon platformunda buluşturur. Her işlem audit kayıtlarıyla izlenir, her teslimat doğrulanır.</p>
+            </div>
+            <div class="col-lg-7">
+                <div class="row g-3">
+                    <div class="col-sm-6"><div class="feature"><span class="ico ico-blue"><i class="bi bi-diagram-3"></i></span><h3>Bölgesel aktarma ağı</h3><p>7 bölgede konumlanan transfer merkezleriyle optimize rotalar.</p></div></div>
+                    <div class="col-sm-6"><div class="feature"><span class="ico ico-orange"><i class="bi bi-speedometer2"></i></span><h3>SLA odaklı operasyon</h3><p>Geciken gönderiler anlık raporlanır, zamanında teslim oranı ölçülür.</p></div></div>
+                    <div class="col-sm-6"><div class="feature"><span class="ico ico-green"><i class="bi bi-lock"></i></span><h3>KVKK uyumlu takip</h3><p>Herkese açık takipte kişisel veriler gösterilmez, maskelenir.</p></div></div>
+                    <div class="col-sm-6"><div class="feature"><span class="ico ico-violet"><i class="bi bi-journal-check"></i></span><h3>Uçtan uca kayıt</h3><p>Her durum değişikliği eski ve yeni değeriyle kayıt altında.</p></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="pb-5">
+    <div class="container">
+        <div class="cta-band">
+            <div class="row align-items-center g-4 position-relative" style="z-index:1">
+                <div class="col-lg-8">
+                    <h2 class="mb-2">Gönderilerinizi tek panelden yönetin</h2>
+                    <p class="mb-0" style="color:#FFE7D8">Ücretsiz hesap oluşturun; size gelen ve gönderdiğiniz tüm kargoları, tahmini teslim tarihleriyle birlikte takip edin.</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <a class="btn btn-ink btn-lg" href="/Register/Signup">Hemen Başla <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

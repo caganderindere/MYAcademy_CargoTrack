@@ -1,0 +1,36 @@
+﻿@model List<ResultCargoMovementDto>
+@if (!Model.Any())
+{
+    <partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { ["EmptyTitle"] = "Henüz hareket yok", ["EmptyIcon"] = "bi-clock-history" }' />
+}
+else
+{
+    <ul class="timeline">
+        @foreach (var item in Model)
+        {
+            <li>
+                <span class="ti-dot"><i class="bi @item.ToStatus.Icon()"></i></span>
+                <div class="ti-title">@item.ToStatus.GetDisplayName()</div>
+                <div class="ti-meta">
+                    <span><i class="bi bi-calendar3 me-1"></i>@item.MovementDate.ToShortDateTime()</span>
+                    @if (item.LocationName is not null)
+                    {
+                        <span><i class="bi bi-geo-alt me-1"></i>@item.LocationName</span>
+                    }
+                    @if (item.EmployeeFullName is not null)
+                    {
+                        <span><i class="bi bi-person me-1"></i>@item.EmployeeFullName</span>
+                    }
+                    @if (item.FromStatus is not null)
+                    {
+                        <span class="text-2">@item.FromStatus.Value.GetDisplayName() → @item.ToStatus.GetDisplayName()</span>
+                    }
+                </div>
+                @if (!string.IsNullOrWhiteSpace(item.Description))
+                {
+                    <div class="ti-desc">@item.Description</div>
+                }
+            </li>
+        }
+    </ul>
+}

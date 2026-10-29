@@ -1,5 +1,7 @@
 ﻿using CargoTrack.Business.Exceptions;
+using CargoTrack.Business.Helpers;
 using CargoTrack.DataAccess.Repositories.Customers;
+using CargoTrack.DTO.DTOs.Common;
 using CargoTrack.DTO.DTOs.CustomerDtos;
 using CargoTrack.Entity.Entities;
 using CargoTrack.Entity.Entities.Enums;
@@ -9,10 +11,51 @@ namespace CargoTrack.Business.Services.Customers
 {
     public class CustomerService(ICustomerRepository _customerRepository) : ICustomerService
     {
+        private const int MinSearchLength = 2;
+        private const int MaxLookupResults = 10;
+
         public async Task<List<ResultCustomerDto>> GetAllAsync()
         {
             var customers = await _customerRepository.GetAllAsync();
             return customers.Adapt<List<ResultCustomerDto>>();
+        }
+
+        public async Task<PagedResultDto<ResultCustomerDto>> GetPagedAsync(PageRequestDto request)
+        {
+            var (page, pageSize) = request.Normalize();
+            var search = string.IsNullOrWhiteSpace(request.Search) ? null : request.Search.Trim();
+
+            var paged = await _customerRepository.GetPagedAsync(page, pageSize, x =>
+                search == null
+                || x.FirstName.Contains(search)
+                || x.LastName.Contains(search)
+                || x.PhoneNumber.Contains(search)
+                || x.Email!.Contains(search));
+
+            return paged.ToPagedResult<Customer, ResultCustomerDto>();
+        }
+
+        public async Task<List<CustomerLookupDto>> SearchAsync(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term) || term.Trim().Length < MinSearchLength)
+            {
+                return new List<CustomerLookupDto>();
+            }
+
+            var search = term.Trim();
+
+            var customers = await _customerRepository.GetListAsync(
+                x => x.FirstName.Contains(search) || x.LastName.Contains(search) || x.PhoneNumber.Contains(search),
+                q => q.OrderBy(x => x.FirstName).ThenBy(x => x.LastName),
+                MaxLookupResults);
+
+            return customers.Adapt<List<CustomerLookupDto>>();
+        }
+
+        public async Task<ResultCustomerDto> GetSummaryAsync(Guid id)
+        {
+            var customer = await GetExistingAsync(id);
+            return customer.Adapt<ResultCustomerDto>();
         }
 
         public async Task<UpdateCustomerDto> GetByIdAsync(Guid id)

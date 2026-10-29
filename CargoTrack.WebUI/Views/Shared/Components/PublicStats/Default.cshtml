@@ -1,0 +1,13 @@
+﻿@model PublicStatsDto
+<section class="stat-strip">
+    <div class="container">
+        <div class="card-ct">
+            <div class="row g-4 text-center text-md-start">
+                <div class="col-6 col-md-3"><div class="num tabular">@Model.DeliveredCargos.ToString("N0")+</div><div class="lbl">Başarılı teslimat</div></div>
+                <div class="col-6 col-md-3"><div class="num tabular">@Model.ActiveBranches</div><div class="lbl">Aktif şube</div></div>
+                <div class="col-6 col-md-3"><div class="num tabular">@Model.TransferCenters</div><div class="lbl">Transfer merkezi</div></div>
+                <div class="col-6 col-md-3"><div class="num tabular">@Model.CoveredCities</div><div class="lbl">Hizmet verilen il</div></div>
+            </div>
+        </div>
+    </div>
+</section>

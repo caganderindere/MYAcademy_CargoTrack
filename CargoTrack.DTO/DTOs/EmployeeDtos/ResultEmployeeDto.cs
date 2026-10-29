@@ -15,5 +15,7 @@ namespace CargoTrack.DTO.DTOs.EmployeeDtos
         public string? TransferCenterName { get; set; }
         public Guid? AppUserId { get; set; }
         public bool HasAccount => AppUserId.HasValue;
+        public string FullName => $"{FirstName} {LastName}";
+        public string? UnitName => BranchName ?? TransferCenterName;
     }
 }

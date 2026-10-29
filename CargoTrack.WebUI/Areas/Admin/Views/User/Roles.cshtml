@@ -1,0 +1,47 @@
+﻿@model UserRolesDto
+@{
+    ViewData["Title"] = "Rol Atama";
+    var descriptions = new Dictionary<string, (string Icon, string Text)>
+    {
+        [Roles.Admin] = ("bi-shield-fill-check", "Tüm şube, personel, kullanıcı, fiyat ve raporları yönetir."),
+        [Roles.Manager] = ("bi-shop", "Yalnızca bağlı olduğu birimin kargolarını görür ve hareket girer. Personel kaydı gerektirir."),
+        [Roles.User] = ("bi-person", "Kendi gönderdiği ve kendisine gelen kargoları takip eder.")
+    };
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs"><a href="/Admin/User">Kullanıcılar</a> / Rol Atama</div>
+        <h1>@Model.FullName</h1>
+        <p class="page-sub">@@@Model.UserName hesabının yetkilerini düzenleyin.</p>
+    </div>
+    <div class="page-actions"><a class="btn btn-ghost" href="/Admin/User"><i class="bi bi-arrow-left"></i> Listeye Dön</a></div>
+</div>
+<div class="card-ct" style="max-width:760px">
+    <form method="post" class="card-body-ct">
+        <input type="hidden" asp-for="UserId" />
+        <input type="hidden" asp-for="FullName" />
+        <input type="hidden" asp-for="UserName" />
+        <div class="row g-3">
+            @for (var i = 0; i < Model.Roles.Count; i++)
+            {
+                var info = descriptions.TryGetValue(Model.Roles[i].RoleName, out var d) ? d : ("bi-person", "");
+                <div class="col-12">
+                    <label class="option-tile">
+                        <input type="checkbox" asp-for="Roles[i].RoleExist" />
+                        <span class="tile">
+                            <i class="bi @info.Item1"></i>
+                            <span><span class="t d-block">@Model.Roles[i].RoleName</span><span class="d">@info.Item2</span></span>
+                        </span>
+                    </label>
+                    <input type="hidden" asp-for="Roles[i].RoleName" />
+                    <input type="hidden" asp-for="Roles[i].RoleId" />
+                    <input type="hidden" asp-for="Roles[i].UserId" />
+                </div>
+            }
+        </div>
+        <div class="d-flex justify-content-end gap-2 pt-3 mt-4 border-top">
+            <a class="btn btn-ghost" href="/Admin/User">Vazgeç</a>
+            <button class="btn btn-brand" type="submit"><i class="bi bi-check2"></i> Rolleri Kaydet</button>
+        </div>
+    </form>
+</div>

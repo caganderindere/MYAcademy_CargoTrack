@@ -1,0 +1,36 @@
+﻿@model IPagedResult
+@{
+    var query = Context.Request.Query;
+    string PageUrl(int page)
+    {
+        var values = query.ToDictionary(x => x.Key, x => (string?)x.Value.ToString(), StringComparer.OrdinalIgnoreCase);
+        values["Page"] = page.ToString();
+        return Context.Request.Path + QueryString.Create(values).ToString();
+    }
+    var start = Math.Max(1, Model.Page - 2);
+    var end = Math.Min(Model.TotalPages, start + 4);
+    start = Math.Max(1, end - 4);
+    var first = Model.TotalCount == 0 ? 0 : (Model.Page - 1) * Model.PageSize + 1;
+    var last = Math.Min(Model.Page * Model.PageSize, Model.TotalCount);
+}
+<div class="pager">
+    <div class="info">Toplam <b class="text-2">@Model.TotalCount</b> kayıttan <b class="text-2">@first–@last</b> arası gösteriliyor</div>
+    @if (Model.TotalPages > 1)
+    {
+        <div class="pages">
+            <a class="@(Model.HasPrevious ? "" : "disabled")" href="@PageUrl(Model.Page - 1)" aria-label="Önceki"><i class="bi bi-chevron-left"></i></a>
+            @for (var i = start; i <= end; i++)
+            {
+                if (i == Model.Page)
+                {
+                    <span class="active">@i</span>
+                }
+                else
+                {
+                    <a href="@PageUrl(i)">@i</a>
+                }
+            }
+            <a class="@(Model.HasNext ? "" : "disabled")" href="@PageUrl(Model.Page + 1)" aria-label="Sonraki"><i class="bi bi-chevron-right"></i></a>
+        </div>
+    }
+</div>

@@ -30,6 +30,7 @@ namespace CargoTrack.WebUI.Controllers
                 return View(registerUserDto);
             }
 
+            TempData["Success"] = "Hesabınız oluşturuldu. Şimdi giriş yapabilirsiniz.";
             return RedirectToAction("Index", "Login");
         }
     }

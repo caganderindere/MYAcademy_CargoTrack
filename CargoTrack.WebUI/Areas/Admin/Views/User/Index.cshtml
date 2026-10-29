@@ -1,0 +1,42 @@
+﻿@model PagedResultDto<ResultUserDto>
+@{
+    ViewData["Title"] = "Kullanıcılar ve Roller";
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs">Sistem</div>
+        <h1>Kullanıcılar ve Roller</h1>
+        <p class="page-sub">Sisteme kayıtlı hesaplar ve yetki rolleri.</p>
+    </div>
+    <div class="page-actions"></div>
+</div>
+<div class="card-ct">
+    <form class="filter-bar" method="get">
+        <div class="filter-grow"><label>Ara</label><div class="input-icon"><i class="bi bi-search"></i><input name="Search" value="@ViewBag.Search" class="form-control" placeholder="Ad, kullanıcı adı veya e-posta" /></div></div>
+        <button class="btn btn-ink" type="submit"><i class="bi bi-funnel"></i> Ara</button>
+        <a class="btn btn-ghost" href="/Admin/User">Temizle</a>
+    </form>
+    <div class="table-responsive">
+        <table class="table table-ct">
+            <thead><tr><th>Kullanıcı</th><th>E-posta</th><th>Roller</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td><div class="d-flex align-items-center gap-3"><span class="party"><span class="av ico-violet" style="width:38px;height:38px;border-radius:12px">@item.FullName.Initials()</span></span><div><div class="cell-title">@item.FullName</div><div class="cell-sub">@@@item.UserName</div></div></div></td>
+                        <td>@item.Email</td>
+                        <td>
+                            @foreach (var role in item.Roles)
+                            {
+                                <span class="badge-ct badge-plain @(role == Roles.Admin ? "tag-delay" : role == Roles.Manager ? "tag-warning" : "tag-info") me-1">@role</span>
+                            }
+                            @if (!item.Roles.Any()) { <span class="text-muted-ct small">Rol yok</span> }
+                        </td>
+                        <td class="text-end"><a class="btn btn-soft btn-sm" href="/Admin/User/Roles/@item.Id"><i class="bi bi-shield-lock"></i> Rolleri Düzenle</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Pagination" model="Model" />
+</div>

@@ -12,7 +12,7 @@ namespace CargoTrack.Entity.Entities
         public int AttemptNumber { get; set; }
         public DateTime OccurredDate { get; set; }
 
-public virtual Cargo Cargo { get; set; }
+        public virtual Cargo Cargo { get; set; }
         public virtual Employee? Employee { get; set; }
     }
 }

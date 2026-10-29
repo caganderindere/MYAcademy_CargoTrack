@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "Hesabım";
+}
+@await Component.InvokeAsync("UserSummary")
+<div class="row g-4">
+    <div class="col-xl-7">
+        @await Component.InvokeAsync("LastCargo")
+    </div>
+    <div class="col-xl-5">
+        <div class="card-ct h-100">
+            <div class="card-head"><h2>Son Kargolarım</h2><a class="btn btn-soft btn-sm" href="/User/Cargo?tab=all">Tümü</a></div>
+            @await Component.InvokeAsync("RecentCargos", new { take = 6, detailUrl = "/User/Cargo/Detail/" })
+        </div>
+    </div>
+</div>

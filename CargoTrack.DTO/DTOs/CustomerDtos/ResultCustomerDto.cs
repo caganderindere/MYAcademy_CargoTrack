@@ -8,5 +8,8 @@
         public string PhoneNumber { get; set; }
         public string? Email { get; set; }
         public DateTime CreatedDate { get; set; }
+        public Guid? AppUserId { get; set; }
+        public bool HasAccount => AppUserId.HasValue;
+        public string FullName => $"{FirstName} {LastName}";
     }
 }

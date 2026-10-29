@@ -1,52 +1,34 @@
-﻿
-@model List<ResultAboutDto>
+﻿@model List<ResultAboutDto>
 @{
-    ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Kurumsal İçerik";
 }
-
-<h3>Hakkımızda</h3>
-
-@if (!Model.Any())
-{
-    <div class="alert alert-info">Henüz Hakkımızda Bilgisi Oluşturulmamış</div>
-    <br />
-    <a href="/Admin/About/Create" class="btn btn-dark">Yeni Hakkımızda Oluştur</a>
-
-}
-
-else
-{
-    <table class="table table-bordered table-hover">
-
-     
-        <tr>
-            <th>Görsel</th>
-            <th>Başlık</th>
-            <th>Açıklama</th>
-            <th>İşlemler</th>
-        </tr>
-
-        @foreach (var item in Model)
-        {
-       
-            <tr>
-                <td><img src="@item.ImageUrl" style="height:75px;width:75px;border-radius:50%" /></td>
-                <td>@item.Title</td>
-                <td>@item.Description</td>
-                <td>
-                    <a href="/Admin/About/Delete/@item.Id" onclick="return confirm('Silmek istediğinize emin misiniz?')" class="btn btn-danger">Sil</a>
-                    <a href="/Admin/About/Update/@item.Id" class="btn btn-info">Güncelle</a>
-
-                </td>
-            </tr>
-        }
-
-    </table>
-}
-
-
-
-
-
-
+<div class="page-head">
+    <div>
+        <div class="crumbs">Sistem</div>
+        <h1>Kurumsal İçerik</h1>
+        <p class="page-sub">Hakkımızda bölümünde kullanılacak içerik blokları.</p>
+    </div>
+    <div class="page-actions"><a class="btn btn-brand" href="/Admin/About/Create"><i class="bi bi-plus-lg"></i> Yeni İçerik</a></div>
+</div>
+<div class="row g-4">
+    @if (!Model.Any())
+    {
+        <div class="col-12"><div class="card-ct"><partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { ["EmptyTitle"] = "Henüz içerik eklenmedi", ["EmptyIcon"] = "bi-file-richtext" }' /></div></div>
+    }
+    @foreach (var item in Model)
+    {
+        <div class="col-md-6 col-xl-4">
+            <div class="card-ct h-100 overflow-hidden d-flex flex-column">
+                <div style="height:160px;background:var(--ct-surface) center/cover no-repeat url('@item.ImageUrl')"></div>
+                <div class="p-4 flex-grow-1">
+                    <h3 class="fs-5">@item.Title</h3>
+                    <p class="small text-2 mb-0">@item.Description</p>
+                </div>
+                <div class="card-foot d-flex gap-2">
+                    <a class="btn btn-soft btn-sm flex-grow-1" href="/Admin/About/Update/@item.Id"><i class="bi bi-pencil"></i> Düzenle</a>
+                    <form method="post" action="/Admin/About/Delete/@item.Id" asp-antiforgery="true" class="d-inline" data-confirm="Bu içeriği silmek istediğinize emin misiniz?"><button class="btn btn-danger-soft btn-icon" type="submit" title="Sil"><i class="bi bi-trash3"></i></button></form>
+                </div>
+            </div>
+        </div>
+    }
+</div>

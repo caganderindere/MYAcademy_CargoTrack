@@ -1,0 +1,28 @@
+﻿@model List<ResultCityDto>
+@{
+    ViewData["Title"] = "Şehirler";
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs">Ağ Yönetimi</div>
+        <h1>Şehirler</h1>
+        <p class="page-sub">Mesafe bölgesi hesaplamasında kullanılan il ve coğrafi bölge eşleşmeleri.</p>
+    </div>
+    <div class="page-actions"></div>
+</div>
+<div class="row g-3">
+    @foreach (var region in Model.GroupBy(x => x.Region).OrderBy(x => x.Key))
+    {
+        <div class="col-md-6 col-xl-4">
+            <div class="card-ct h-100">
+                <div class="card-head"><h2>@region.Key.GetDisplayName()</h2><span class="badge-ct badge-plain tag-neutral">@region.Count() il</span></div>
+                <div class="card-body-ct d-flex flex-wrap gap-2">
+                    @foreach (var city in region)
+                    {
+                        <span class="badge-ct badge-plain tag-info fs-6 px-3 py-2">@city.Name</span>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

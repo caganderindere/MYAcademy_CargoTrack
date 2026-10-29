@@ -1,0 +1,21 @@
+﻿@model List<ResultCargoMovementDto>
+@if (!Model.Any())
+{
+    <partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { ["EmptyTitle"] = "Hareket kaydı yok", ["EmptyIcon"] = "bi-activity" }' />
+}
+else
+{
+    @foreach (var item in Model)
+    {
+        <div class="mini-move">
+            <span class="mm-ico badge-ct badge-plain @item.ToStatus.BadgeClass()"><i class="bi @item.ToStatus.Icon()"></i></span>
+            <div class="flex-grow-1 min-w-0">
+                <div class="d-flex justify-content-between gap-2">
+                    <a class="fw-bold mono small" href="/Manager/Cargo/Detail/@item.CargoId">@item.CargoTrackCode</a>
+                    <span class="small text-muted-ct tabular">@item.MovementDate.ToString("dd.MM HH:mm")</span>
+                </div>
+                <div class="small text-2">@item.ToStatus.GetDisplayName()@(item.LocationName is not null ? " · " + item.LocationName : "")</div>
+            </div>
+        </div>
+    }
+}

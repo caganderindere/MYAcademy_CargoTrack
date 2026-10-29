@@ -1,0 +1,93 @@
+﻿@model CargoDetailDto
+<div class="card-ct mb-4">
+    <div class="card-body-ct">
+        <div class="route-line mb-4">
+            <div class="node">
+                <div class="k text-muted-ct small fw-bold text-uppercase">Çıkış</div>
+                <div class="city">@Model.OriginBranchCityName</div>
+                <div class="br">@Model.OriginBranchName</div>
+            </div>
+            <div class="path"><i class="bi bi-truck"></i></div>
+            <div class="node text-md-end">
+                <div class="k text-muted-ct small fw-bold text-uppercase">Varış</div>
+                <div class="city">@Model.DestinationBranchCityName</div>
+                <div class="br">@Model.DestinationBranchName</div>
+            </div>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="party">
+                    <div class="av ico-blue">@Model.SenderFullName.Initials()</div>
+                    <div>
+                        <div class="text-muted-ct small fw-bold text-uppercase">Gönderici</div>
+                        <div class="fw-bold">@Model.SenderFullName</div>
+                        <div class="small text-2">@Model.SenderPhoneNumber</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="party">
+                    <div class="av ico-orange">@Model.ReceiverFullName.Initials()</div>
+                    <div>
+                        <div class="text-muted-ct small fw-bold text-uppercase">Alıcı</div>
+                        <div class="fw-bold">@Model.ReceiverFullName</div>
+                        <div class="small text-2">@Model.ReceiverPhoneNumber</div>
+                        <div class="small text-2 mt-1"><i class="bi bi-geo-alt me-1"></i>@Model.DeliveryAddressTitle · @Model.DeliveryAddressFullAddress, @Model.DeliveryAddressDistrict / @Model.DeliveryAddressCityName</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-foot">
+        <div class="info-grid">
+            <div class="info-item"><div class="k">Kargo Tipi</div><div class="v">@Model.CargoType.GetDisplayName()</div></div>
+            <div class="info-item"><div class="k">Teslimat</div><div class="v">@Model.DeliveryType.GetDisplayName()</div></div>
+            <div class="info-item"><div class="k">Ölçüler</div><div class="v tabular">@Model.Width × @Model.Length × @Model.Height cm</div></div>
+            <div class="info-item"><div class="k">Ağırlık / Desi</div><div class="v tabular">@Model.Weight kg · @Model.Desi desi</div></div>
+            <div class="info-item"><div class="k">Ek Hizmetler</div><div class="v">@Model.AdditionalServices.GetDisplayName()</div></div>
+            <div class="info-item"><div class="k">Ücret</div><div class="v tabular text-accent">@Model.Price.ToMoney()</div></div>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <div class="mt-3 small text-2"><i class="bi bi-chat-left-text me-1"></i>@Model.Description</div>
+        }
+    </div>
+</div>
+@if (Model.DeliveryReceivedByName is not null)
+{
+    <div class="card-ct mb-4">
+        <div class="card-head"><h3><i class="bi bi-patch-check text-success me-2"></i>Teslimat Bilgisi</h3></div>
+        <div class="card-body-ct info-grid">
+            <div class="info-item"><div class="k">Teslim Alan</div><div class="v">@Model.DeliveryReceivedByName</div></div>
+            <div class="info-item"><div class="k">Teslim Tarihi</div><div class="v">@Model.DeliveryDeliveredDate.ToShortDateTime()</div></div>
+            <div class="info-item"><div class="k">Teslim Eden</div><div class="v">@(Model.DeliveryEmployeeFullName ?? "-")</div></div>
+            @if (!string.IsNullOrWhiteSpace(Model.DeliveryNote))
+            {
+                <div class="info-item"><div class="k">Not</div><div class="v">@Model.DeliveryNote</div></div>
+            }
+        </div>
+    </div>
+}
+@if (Model.DeliveryExceptions.Any())
+{
+    <div class="card-ct mb-4">
+        <div class="card-head"><h3><i class="bi bi-exclamation-triangle text-danger me-2"></i>Teslimat Sorunları</h3><span class="sub">@Model.FailedDeliveryAttempts / 3 deneme</span></div>
+        <div class="table-responsive">
+            <table class="table table-ct">
+                <thead><tr><th>Deneme</th><th>Neden</th><th>Açıklama</th><th>Personel</th><th>Tarih</th></tr></thead>
+                <tbody>
+                    @foreach (var item in Model.DeliveryExceptions)
+                    {
+                        <tr>
+                            <td class="fw-bold">#@item.AttemptNumber</td>
+                            <td><span class="badge-ct st-failed">@item.Reason.GetDisplayName()</span></td>
+                            <td class="text-2">@(item.Description ?? "-")</td>
+                            <td>@(item.EmployeeFullName ?? "-")</td>
+                            <td class="tabular">@item.OccurredDate.ToShortDateTime()</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

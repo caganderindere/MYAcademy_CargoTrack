@@ -15,7 +15,7 @@ namespace CargoTrack.Entity.Entities
 
         public Guid? AppUserId { get; set; }
 
-public virtual Branch? Branch { get; set; }
+        public virtual Branch? Branch { get; set; }
         public virtual TransferCenter? TransferCenter { get; set; }
         public virtual AppUser? AppUser { get; set; }
         public virtual IList<CargoMovement> Movements { get; set; }

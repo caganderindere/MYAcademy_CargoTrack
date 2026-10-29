@@ -24,5 +24,8 @@ namespace CargoTrack.DTO.DTOs.Cargos
         public string OriginBranchName { get; set; }
         public Guid DestinationBranchId { get; set; }
         public string DestinationBranchName { get; set; }
+        public bool IsDelayed { get; set; }
+        public string SenderFullName => $"{SenderFirstName} {SenderLastName}";
+        public string ReceiverFullName => $"{ReceiverFirstName} {ReceiverLastName}";
     }
 }

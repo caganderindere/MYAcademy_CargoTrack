@@ -1,0 +1,48 @@
+﻿@model PagedResultDto<ResultCargoDto>
+@{
+    var filter = (CargoFilterDto)ViewBag.Filter;
+    var action = (string)ViewBag.Action;
+    var baseUrl = "/Manager/Cargo/" + action;
+    var isAdmin = User.IsInRole(Roles.Admin);
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs">Operasyon</div>
+        <h1>@ViewBag.Title</h1>
+        <p class="page-sub">@ViewBag.Subtitle</p>
+    </div>
+    <div class="page-actions">
+        <a class="btn btn-brand" href="/Manager/Cargo/Create"><i class="bi bi-plus-lg"></i> @(isAdmin ? "Yeni Gönderi" : "Kargo Kabul")</a>
+    </div>
+</div>
+@if (action == "Index" && !isAdmin)
+{
+    <div class="tabs-ct mb-3 d-inline-flex">
+        <a class="@(filter.Direction is null ? "active" : "")" href="/Manager/Cargo/Index">Tümü</a>
+        <a class="@(filter.Direction == "incoming" ? "active" : "")" href="/Manager/Cargo/Index?Direction=incoming"><i class="bi bi-box-arrow-in-down me-1"></i>Gelen</a>
+        <a class="@(filter.Direction == "outgoing" ? "active" : "")" href="/Manager/Cargo/Index?Direction=outgoing"><i class="bi bi-box-arrow-up me-1"></i>Giden</a>
+    </div>
+}
+<div class="card-ct">
+    <form class="filter-bar" method="get" action="@baseUrl">
+        <input type="hidden" name="Direction" value="@filter.Direction" />
+        <div class="filter-grow"><label>Ara</label><div class="input-icon"><i class="bi bi-search"></i><input name="Search" value="@filter.Search" class="form-control" placeholder="Takip no, gönderici veya alıcı adı" /></div></div>
+        @if (action == "Index")
+        {
+            <div class="filter-item"><label>Durum</label><select name="Status" class="form-select" asp-items="@SelectListExtensions.EnumSelect(filter.Status)"><option value="">Tüm durumlar</option></select></div>
+        }
+        <div class="filter-item"><label>Başlangıç</label><input type="date" name="DateFrom" value="@filter.DateFrom?.ToString("yyyy-MM-dd")" class="form-control" /></div>
+        <div class="filter-item"><label>Bitiş</label><input type="date" name="DateTo" value="@filter.DateTo?.ToString("yyyy-MM-dd")" class="form-control" /></div>
+        <div class="filter-item" style="flex-basis:auto">
+            <label>&nbsp;</label>
+            <div class="form-check form-switch m-0 py-2">
+                <input class="form-check-input" type="checkbox" name="OnlyDelayed" value="true" id="onlyDelayed" @(filter.OnlyDelayed ? "checked" : "") />
+                <label class="form-check-label fw-bold small" for="onlyDelayed">Sadece gecikenler</label>
+            </div>
+        </div>
+        <button class="btn btn-ink" type="submit"><i class="bi bi-funnel"></i> Filtrele</button>
+        <a class="btn btn-ghost" href="@baseUrl">Temizle</a>
+    </form>
+    <partial name="_CargoTable" model="Model.Items" />
+    <partial name="_Pagination" model="Model" />
+</div>

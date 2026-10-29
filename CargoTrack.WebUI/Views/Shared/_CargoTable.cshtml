@@ -1,0 +1,68 @@
+﻿@model IEnumerable<ResultCargoDto>
+@{
+    var detailUrl = ViewData["DetailUrl"] as string ?? "/Manager/Cargo/Detail/";
+    var compact = ViewData["Compact"] is true;
+}
+@if (!Model.Any())
+{
+    <partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { ["EmptyTitle"] = "Gönderi bulunamadı", ["EmptyIcon"] = "bi-box-seam" }' />
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-ct">
+            <thead>
+                <tr>
+                    <th>Takip No</th>
+                    <th>Gönderici → Alıcı</th>
+                    @if (!compact)
+                    {
+                        <th>Güzergah</th>
+                    }
+                    <th>Durum</th>
+                    <th>Tahmini Teslim</th>
+                    @if (!compact)
+                    {
+                        <th class="text-end">Tutar</th>
+                    }
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <a class="cell-title mono" href="@(detailUrl + item.Id)">@item.TrackCode</a>
+                            <div class="cell-sub">@item.CreatedDate.ToShortDateTime()</div>
+                        </td>
+                        <td>
+                            <div class="fw-semibold">@item.SenderFullName</div>
+                            <div class="cell-sub"><i class="bi bi-arrow-return-right"></i> @item.ReceiverFullName</div>
+                        </td>
+                        @if (!compact)
+                        {
+                            <td>
+                                <div class="fw-semibold">@item.OriginBranchName</div>
+                                <div class="cell-sub"><i class="bi bi-arrow-right"></i> @item.DestinationBranchName</div>
+                            </td>
+                        }
+                        <td>
+                            <partial name="_StatusBadge" model="item.CargoStatus" />
+                            @if (item.IsDelayed)
+                            {
+                                <span class="badge-ct badge-plain tag-delay ms-1"><i class="bi bi-alarm"></i> Gecikmede</span>
+                            }
+                        </td>
+                        <td class="tabular">@(item.DeliveredDate is not null ? item.DeliveredDate.ToShortDateTime() : item.EstimatedDeliveryDate.ToShortDateTime())</td>
+                        @if (!compact)
+                        {
+                            <td class="text-end fw-bold tabular">@item.Price.ToMoney()</td>
+                        }
+                        <td class="text-end"><a class="btn btn-soft btn-sm" href="@(detailUrl + item.Id)">Detay <i class="bi bi-chevron-right"></i></a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

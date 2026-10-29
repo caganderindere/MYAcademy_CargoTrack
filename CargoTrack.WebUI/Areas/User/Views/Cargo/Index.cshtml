@@ -1,0 +1,30 @@
+﻿@model PagedResultDto<ResultCargoDto>
+@{
+    ViewData["Title"] = "Kargolarım";
+    var tab = (string)ViewBag.Tab;
+    var filter = (CargoFilterDto)ViewBag.Filter;
+    var tabs = new[] { ("active", "Aktif", "bi-lightning-charge"), ("incoming", "Bana Gelen", "bi-box-arrow-in-down"), ("outgoing", "Gönderdiğim", "bi-box-arrow-up"), ("history", "Geçmiş Teslimatlar", "bi-clock-history"), ("all", "Tümü", "bi-list-ul") };
+}
+<div class="page-head">
+    <div>
+        <div class="crumbs">Hesabım</div>
+        <h1>Kargolarım</h1>
+        <p class="page-sub">Yalnızca gönderici veya alıcı olduğunuz kargolar listelenir.</p>
+    </div>
+    <div class="page-actions"></div>
+</div>
+<div class="tabs-ct mb-3 d-inline-flex">
+    @foreach (var item in tabs)
+    {
+        <a class="@(tab == item.Item1 ? "active" : "")" href="/User/Cargo?tab=@item.Item1"><i class="bi @item.Item3 me-1"></i>@item.Item2</a>
+    }
+</div>
+<div class="card-ct">
+    <form class="filter-bar" method="get">
+        <input type="hidden" name="tab" value="@tab" />
+        <div class="filter-grow"><label>Ara</label><div class="input-icon"><i class="bi bi-search"></i><input name="Search" value="@filter.Search" class="form-control" placeholder="Takip no veya kişi adı" /></div></div>
+        <button class="btn btn-ink" type="submit"><i class="bi bi-search"></i> Ara</button>
+    </form>
+    <partial name="_CargoTable" model="Model.Items" view-data='new ViewDataDictionary(ViewData) { ["DetailUrl"] = "/User/Cargo/Detail/" }' />
+    <partial name="_Pagination" model="Model" />
+</div>
