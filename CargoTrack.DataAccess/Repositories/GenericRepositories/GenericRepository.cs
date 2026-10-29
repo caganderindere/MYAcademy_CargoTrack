@@ -21,7 +21,8 @@ namespace CargoTrack.DataAccess.Repositories.GenericRepositories
 
         public async Task DeleteAsync(TEntity entity)
         {
-            _context.Remove(entity);
+            entity.IsDeleted = true;
+            _context.Update(entity);
             await _context.SaveChangesAsync();
         }
 

@@ -7,10 +7,10 @@ using CargoTrack.DataAccess.Repositories.Abouts;
 using CargoTrack.DataAccess.Repositories.Branches;
 using CargoTrack.DataAccess.Repositories.Cities;
 using CargoTrack.Entity.Entities;
+using CargoTrack.Entity.Entities.Enums; // ✏️ Region enum'u için eklendi
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
-using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,9 +73,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 
-
-
-
 app.MapControllerRoute(
             name: "areas",
             pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
@@ -91,83 +88,57 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-    // Veritabanının var olduğundan emin olun (Migration kullanıyorsanız context.Database.Migrate() yapın)
-    context.Database.EnsureCreated();
+    // ✏️ 1) EnsureCreated yerine Migrate: migration geçmişini takip eder, sadece eksik migration'ları uygular
+    context.Database.Migrate();
 
     // Eğer veritabanında hiç şehir yoksa ekle
     if (!context.Cities.Any())
     {
+        // ✏️ 2) Her şehre Region eklendi (fiyatlandırmada "bölge içi / bölgeler arası" hesabı için gerekli)
         var cities = new List<City>
         {
-            new City { Id = Guid.NewGuid(), Name = "İstanbul" },
-            new City { Id = Guid.NewGuid(), Name = "Ankara" },
-            new City { Id = Guid.NewGuid(), Name = "İzmir" },
-            new City { Id = Guid.NewGuid(), Name = "Bursa" },
-            new City { Id = Guid.NewGuid(), Name = "Antalya" },
-            new City { Id = Guid.NewGuid(), Name = "Adana" },
-            new City { Id = Guid.NewGuid(), Name = "Konya" },
-            new City { Id = Guid.NewGuid(), Name = "Şanlıurfa" },
-            new City { Id = Guid.NewGuid(), Name = "Gaziantep" },
-            new City { Id = Guid.NewGuid(), Name = "Kocaeli" },
-            new City { Id = Guid.NewGuid(), Name = "Mersin" },
-            new City { Id = Guid.NewGuid(), Name = "Diyarbakır" },
-            new City { Id = Guid.NewGuid(), Name = "Hatay" },
-            new City { Id = Guid.NewGuid(), Name = "Kayseri" },
-            new City { Id = Guid.NewGuid(), Name = "Samsun" },
-            new City { Id = Guid.NewGuid(), Name = "Balıkesir" },
-            new City { Id = Guid.NewGuid(), Name = "Kahramanmaraş" },
-            new City { Id = Guid.NewGuid(), Name = "Van" },
-            new City { Id = Guid.NewGuid(), Name = "Aydın" },
-            new City { Id = Guid.NewGuid(), Name = "Tekirdağ" }
+            new City { Name = "İstanbul",      Region = Region.Marmara },
+            new City { Name = "Ankara",        Region = Region.CentralAnatolia },
+            new City { Name = "İzmir",         Region = Region.Aegean },
+            new City { Name = "Bursa",         Region = Region.Marmara },
+            new City { Name = "Antalya",       Region = Region.Mediterranean },
+            new City { Name = "Adana",         Region = Region.Mediterranean },
+            new City { Name = "Konya",         Region = Region.CentralAnatolia },
+            new City { Name = "Şanlıurfa",     Region = Region.SoutheasternAnatolia },
+            new City { Name = "Gaziantep",     Region = Region.SoutheasternAnatolia },
+            new City { Name = "Kocaeli",       Region = Region.Marmara },
+            new City { Name = "Mersin",        Region = Region.Mediterranean },
+            new City { Name = "Diyarbakır",    Region = Region.SoutheasternAnatolia },
+            new City { Name = "Hatay",         Region = Region.Mediterranean },
+            new City { Name = "Kayseri",       Region = Region.CentralAnatolia },
+            new City { Name = "Samsun",        Region = Region.BlackSea },
+            new City { Name = "Balıkesir",     Region = Region.Marmara },
+            new City { Name = "Kahramanmaraş", Region = Region.Mediterranean },
+            new City { Name = "Van",           Region = Region.EasternAnatolia },
+            new City { Name = "Aydın",         Region = Region.Aegean },
+            new City { Name = "Tekirdağ",      Region = Region.Marmara }
         };
 
         context.Cities.AddRange(cities);
         context.SaveChanges();
-
-
-       
     }
 
     if (!context.Roles.Any())
     {
+        
         var roles = new List<AppRole>
             {
-                new AppRole{Name="Admin"},
-                new AppRole{Name="Manager"},
-                new AppRole{Name="User"}
+                new AppRole{Name="Admin",   NormalizedName="ADMIN"},
+                new AppRole{Name="Manager", NormalizedName="MANAGER"},
+                new AppRole{Name="User",    NormalizedName="USER"}
             };
 
         context.Roles.AddRange(roles);
         context.SaveChanges();
     }
 
-    if (!context.Cargos.Any())
-    {
-        var cargo = new Cargo
-        {
-            Id = Guid.NewGuid(),
-            SenderId = Guid.Parse("38dcc957-3de7-461d-9539-08df085c7901"),
-            ReceiverId = Guid.Parse("c759391c-c627-46cd-953a-08df085c7901"),
-            OriginBranchId = Guid.Parse("1253aafb-cccc-4eeb-97cf-394c67cfbe38"),
-            DestinationBranchId = Guid.Parse("3842bdc9-c4a6-4ced-8528-9a11686d907a"),
-            TrackCode = "CT202609081234",
-            CreatedDate = DateTime.Now,
-            EstimatedDeliveryDate = DateTime.Now.AddDays(2),
-            Weight = 2.5m,
-            CargoType = CargoTrack.Entity.Entities.Enums.CargoType.Package,
-            CargoStatus = CargoTrack.Entity.Entities.Enums.CargoStatus.InTransferCenter
-        };
-
-        context.Add(cargo);
-        context.SaveChanges();
-    }
-
-
-
-    
+   
 }
-
-
 
 
 app.Run();

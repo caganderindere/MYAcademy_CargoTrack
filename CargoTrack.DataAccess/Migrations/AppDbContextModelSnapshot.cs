@@ -18,6 +18,9 @@ namespace CargoTrack.DataAccess.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.30")
+                .HasAnnotation("Proxies:ChangeTracking", false)
+                .HasAnnotation("Proxies:CheckEquality", false)
+                .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -28,6 +31,9 @@ namespace CargoTrack.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -36,9 +42,15 @@ namespace CargoTrack.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -51,28 +63,41 @@ namespace CargoTrack.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("CityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("District")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("FullAddress")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("CityId");
+
+                    b.HasIndex("CustomerId");
 
                     b.ToTable("Addresses");
                 });
@@ -179,22 +204,102 @@ namespace CargoTrack.DataAccess.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("CargoTrack.Entity.Entities.AuditLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ActionType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("EntityId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NewValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OldValues")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedDate");
+
+                    b.HasIndex("EntityName", "EntityId");
+
+                    b.ToTable("AuditLogs");
+                });
+
             modelBuilder.Entity("CargoTrack.Entity.Entities.Branch", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<Guid>("CityId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid?>("TransferCenterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CityId");
+
+                    b.HasIndex("TransferCenterId");
 
                     b.ToTable("Branches");
                 });
@@ -205,20 +310,68 @@ namespace CargoTrack.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("AdditionalServices")
+                        .HasColumnType("int");
+
                     b.Property<int>("CargoStatus")
                         .HasColumnType("int");
 
                     b.Property<int>("CargoType")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeliveredDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("DeliveryAddressId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DeliveryCode")
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
+
+                    b.Property<DateTime?>("DeliveryCodeGeneratedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DeliveryType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("Desi")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
                     b.Property<Guid>("DestinationBranchId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("EstimatedArrivalDate")
+                    b.Property<DateTime>("EstimatedDeliveryDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("FailedDeliveryAttempts")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Height")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("Length")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<Guid>("OriginBranchId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("ReceiverId")
                         .HasColumnType("uniqueidentifier");
@@ -226,19 +379,31 @@ namespace CargoTrack.DataAccess.Migrations
                     b.Property<Guid>("SenderId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("ShipmentDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("TrackCode")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
-                    b.Property<double>("Weight")
-                        .HasColumnType("float");
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Weight")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal>("Width")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CargoStatus");
+
+                    b.HasIndex("DeliveryAddressId");
+
                     b.HasIndex("DestinationBranchId");
+
+                    b.HasIndex("EstimatedDeliveryDate");
 
                     b.HasIndex("OriginBranchId");
 
@@ -246,7 +411,103 @@ namespace CargoTrack.DataAccess.Migrations
 
                     b.HasIndex("SenderId");
 
+                    b.HasIndex("TrackCode")
+                        .IsUnique();
+
                     b.ToTable("Cargos");
+                });
+
+            modelBuilder.Entity("CargoTrack.Entity.Entities.CargoMovement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("BranchId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CargoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid?>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("FromStatus")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("MovementDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ToStatus")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("TransferCenterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("CargoId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("MovementDate");
+
+                    b.HasIndex("TransferCenterId");
+
+                    b.ToTable("CargoMovements");
+                });
+
+            modelBuilder.Entity("CargoTrack.Entity.Entities.CargoPrice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DistanceZone")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("MaxDesi")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal>("MinDesi")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CargoPrices");
                 });
 
             modelBuilder.Entity("CargoTrack.Entity.Entities.City", b =>
@@ -255,11 +516,27 @@ namespace CargoTrack.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("Region")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Cities");
                 });
@@ -274,17 +551,252 @@ namespace CargoTrack.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
                     b.ToTable("ContactInfos");
+                });
+
+            modelBuilder.Entity("CargoTrack.Entity.Entities.Customer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AppUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId")
+                        .IsUnique()
+                        .HasFilter("[AppUserId] IS NOT NULL");
+
+                    b.HasIndex("PhoneNumber");
+
+                    b.ToTable("Customers");
+                });
+
+            modelBuilder.Entity("CargoTrack.Entity.Entities.Delivery", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CargoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DeliveredDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ReceivedByName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CargoId")
+                        .IsUnique();
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("Deliveries");
+                });
+
+            modelBuilder.Entity("CargoTrack.Entity.Entities.DeliveryException", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AttemptNumber")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("CargoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid?>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("OccurredDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Reason")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CargoId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("DeliveryExceptions");
+                });
+
+            modelBuilder.Entity("CargoTrack.Entity.Entities.Employee", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AppUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("BranchId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("TransferCenterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId")
+                        .IsUnique()
+                        .HasFilter("[AppUserId] IS NOT NULL");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("TransferCenterId");
+
+                    b.ToTable("Employees");
+                });
+
+            modelBuilder.Entity("CargoTrack.Entity.Entities.TransferCenter", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("CityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CityId");
+
+                    b.ToTable("TransferCenters");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -392,13 +904,21 @@ namespace CargoTrack.DataAccess.Migrations
 
             modelBuilder.Entity("CargoTrack.Entity.Entities.Address", b =>
                 {
-                    b.HasOne("CargoTrack.Entity.Entities.AppUser", "User")
+                    b.HasOne("CargoTrack.Entity.Entities.City", "City")
                         .WithMany("Addresses")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.HasOne("CargoTrack.Entity.Entities.Customer", "Customer")
+                        .WithMany("Addresses")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("City");
+
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("CargoTrack.Entity.Entities.Branch", b =>
@@ -406,14 +926,27 @@ namespace CargoTrack.DataAccess.Migrations
                     b.HasOne("CargoTrack.Entity.Entities.City", "City")
                         .WithMany("Branches")
                         .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("CargoTrack.Entity.Entities.TransferCenter", "TransferCenter")
+                        .WithMany("Branches")
+                        .HasForeignKey("TransferCenterId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("City");
+
+                    b.Navigation("TransferCenter");
                 });
 
             modelBuilder.Entity("CargoTrack.Entity.Entities.Cargo", b =>
                 {
+                    b.HasOne("CargoTrack.Entity.Entities.Address", "DeliveryAddress")
+                        .WithMany("Cargos")
+                        .HasForeignKey("DeliveryAddressId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("CargoTrack.Entity.Entities.Branch", "DestinationBranch")
                         .WithMany("DestinationCargos")
                         .HasForeignKey("DestinationBranchId")
@@ -426,17 +959,19 @@ namespace CargoTrack.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("CargoTrack.Entity.Entities.AppUser", "Receiver")
+                    b.HasOne("CargoTrack.Entity.Entities.Customer", "Receiver")
                         .WithMany("ReceivedCargos")
                         .HasForeignKey("ReceiverId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("CargoTrack.Entity.Entities.AppUser", "Sender")
+                    b.HasOne("CargoTrack.Entity.Entities.Customer", "Sender")
                         .WithMany("SentCargos")
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("DeliveryAddress");
 
                     b.Navigation("DestinationBranch");
 
@@ -445,6 +980,120 @@ namespace CargoTrack.DataAccess.Migrations
                     b.Navigation("Receiver");
 
                     b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("CargoTrack.Entity.Entities.CargoMovement", b =>
+                {
+                    b.HasOne("CargoTrack.Entity.Entities.Branch", "Branch")
+                        .WithMany("Movements")
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CargoTrack.Entity.Entities.Cargo", "Cargo")
+                        .WithMany("Movements")
+                        .HasForeignKey("CargoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CargoTrack.Entity.Entities.Employee", "Employee")
+                        .WithMany("Movements")
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CargoTrack.Entity.Entities.TransferCenter", "TransferCenter")
+                        .WithMany("Movements")
+                        .HasForeignKey("TransferCenterId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("Cargo");
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("TransferCenter");
+                });
+
+            modelBuilder.Entity("CargoTrack.Entity.Entities.Customer", b =>
+                {
+                    b.HasOne("CargoTrack.Entity.Entities.AppUser", "AppUser")
+                        .WithOne("Customer")
+                        .HasForeignKey("CargoTrack.Entity.Entities.Customer", "AppUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("AppUser");
+                });
+
+            modelBuilder.Entity("CargoTrack.Entity.Entities.Delivery", b =>
+                {
+                    b.HasOne("CargoTrack.Entity.Entities.Cargo", "Cargo")
+                        .WithOne("Delivery")
+                        .HasForeignKey("CargoTrack.Entity.Entities.Delivery", "CargoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CargoTrack.Entity.Entities.Employee", "Employee")
+                        .WithMany("Deliveries")
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Cargo");
+
+                    b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("CargoTrack.Entity.Entities.DeliveryException", b =>
+                {
+                    b.HasOne("CargoTrack.Entity.Entities.Cargo", "Cargo")
+                        .WithMany("DeliveryExceptions")
+                        .HasForeignKey("CargoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CargoTrack.Entity.Entities.Employee", "Employee")
+                        .WithMany("DeliveryExceptions")
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Cargo");
+
+                    b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("CargoTrack.Entity.Entities.Employee", b =>
+                {
+                    b.HasOne("CargoTrack.Entity.Entities.AppUser", "AppUser")
+                        .WithOne("Employee")
+                        .HasForeignKey("CargoTrack.Entity.Entities.Employee", "AppUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CargoTrack.Entity.Entities.Branch", "Branch")
+                        .WithMany("Employees")
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CargoTrack.Entity.Entities.TransferCenter", "TransferCenter")
+                        .WithMany("Employees")
+                        .HasForeignKey("TransferCenterId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("TransferCenter");
+                });
+
+            modelBuilder.Entity("CargoTrack.Entity.Entities.TransferCenter", b =>
+                {
+                    b.HasOne("CargoTrack.Entity.Entities.City", "City")
+                        .WithMany("TransferCenters")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("City");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -498,7 +1147,48 @@ namespace CargoTrack.DataAccess.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("CargoTrack.Entity.Entities.Address", b =>
+                {
+                    b.Navigation("Cargos");
+                });
+
             modelBuilder.Entity("CargoTrack.Entity.Entities.AppUser", b =>
+                {
+                    b.Navigation("Customer");
+
+                    b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("CargoTrack.Entity.Entities.Branch", b =>
+                {
+                    b.Navigation("DestinationCargos");
+
+                    b.Navigation("Employees");
+
+                    b.Navigation("Movements");
+
+                    b.Navigation("OriginCargos");
+                });
+
+            modelBuilder.Entity("CargoTrack.Entity.Entities.Cargo", b =>
+                {
+                    b.Navigation("Delivery");
+
+                    b.Navigation("DeliveryExceptions");
+
+                    b.Navigation("Movements");
+                });
+
+            modelBuilder.Entity("CargoTrack.Entity.Entities.City", b =>
+                {
+                    b.Navigation("Addresses");
+
+                    b.Navigation("Branches");
+
+                    b.Navigation("TransferCenters");
+                });
+
+            modelBuilder.Entity("CargoTrack.Entity.Entities.Customer", b =>
                 {
                     b.Navigation("Addresses");
 
@@ -507,16 +1197,22 @@ namespace CargoTrack.DataAccess.Migrations
                     b.Navigation("SentCargos");
                 });
 
-            modelBuilder.Entity("CargoTrack.Entity.Entities.Branch", b =>
+            modelBuilder.Entity("CargoTrack.Entity.Entities.Employee", b =>
                 {
-                    b.Navigation("DestinationCargos");
+                    b.Navigation("Deliveries");
 
-                    b.Navigation("OriginCargos");
+                    b.Navigation("DeliveryExceptions");
+
+                    b.Navigation("Movements");
                 });
 
-            modelBuilder.Entity("CargoTrack.Entity.Entities.City", b =>
+            modelBuilder.Entity("CargoTrack.Entity.Entities.TransferCenter", b =>
                 {
                     b.Navigation("Branches");
+
+                    b.Navigation("Employees");
+
+                    b.Navigation("Movements");
                 });
 #pragma warning restore 612, 618
         }
