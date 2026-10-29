@@ -12,6 +12,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using CargoTrack.DataAccess.Repositories.Cargo;
+using CargoTrack.Business.Services.Cargos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,8 @@ builder.Services.AddScoped<IBranchRepository, BranchRepository>();
 builder.Services.AddScoped<ICityRepository, CityRepository>();
 
 builder.Services.AddScoped<ICargoRepository, CargoRepository>();
+
+builder.Services.AddScoped<ICargoService, CargoService>();
 
 builder.Services.AddScoped<IAboutService, AboutService>();
 builder.Services.AddScoped<IBranchService, BranchService>();
