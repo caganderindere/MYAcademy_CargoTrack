@@ -2,7 +2,7 @@
 
 ASP.NET Core MVC (.NET 8) ve N-katmanlı mimari ile geliştirilmiş, rol bazlı yetkilendirilmiş, kargonun kabulünden teslimine kadar her hareketi kayıt altına alan bir kargo operasyon platformu.
 
-> MyAcademy bootcamp **CargoTrack Case Study** kapsamında geliştirilmiştir.
+
 
 ![Ana sayfa](docs/screenshots/01-anasayfa.png)
 
